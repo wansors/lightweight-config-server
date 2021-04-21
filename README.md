@@ -52,3 +52,15 @@ If you want to learn more about building native executables, please consult http
 REST is easy peasy with this Hello World RESTEasy resource.
 
 [Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+
+
+## Config Files preference
+
+With git repositories, resources with file names in application* (application.properties, application.yml, application-*.properties, and so on) are shared between all client applications. You can use resources with these file names to configure global defaults and have them be overridden by application-specific files as necessary.
+
+// application.(properties/yml), (General properties that apply to all applications and all profiles)
+// application-{profile}.(properties/yml) (General properties that apply to all applications and profile-specific )
+// {application}.(properties/yml) (Specific properties that apply to an  application-specific and all profiles)
+// {application}-{profile}.(properties/yml) (Specific properties that apply to an application-specific  and a profile-specific )
+
+TODO revisar labels
