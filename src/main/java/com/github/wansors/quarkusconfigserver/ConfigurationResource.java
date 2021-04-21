@@ -1,5 +1,7 @@
 package com.github.wansors.quarkusconfigserver;
 
+import java.util.HashMap;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -40,5 +42,4 @@ public class ConfigurationResource {
         repository.getConfiguration(application, profile,label);
         return Response.ok().build();
     }
-
 }

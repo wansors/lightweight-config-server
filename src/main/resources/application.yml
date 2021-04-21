@@ -1,0 +1,13 @@
+---
+quarkus:
+  log:
+    level: INFO
+quarkusconfigserver:
+    repository:
+      git:
+        - uri: http://example1.com
+          refresh-rate: 15
+          force-pull: false
+        - uri: http://example2.com
+          refresh-rate: 10
+          force-pull: true
