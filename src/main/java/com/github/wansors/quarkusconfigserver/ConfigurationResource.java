@@ -1,5 +1,7 @@
 package com.github.wansors.quarkusconfigserver;
 
+import java.util.Map;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -20,8 +22,6 @@ public class ConfigurationResource {
     @Inject
     ConfigurationService service;
 
-    private String configuration;
-
     /**
      * 
      * /{application}/{profile}[/{label}]
@@ -33,8 +33,8 @@ public class ConfigurationResource {
     public Response standardLabelApplicationProfileJson(@PathParam("label") String label,
             @PathParam("application") String application, @PathParam("profile") String profile) {
         LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label + " on JSON");
-        configuration = service.getConfiguration(application, profile, label);
-        return Response.ok(configuration).build();
+        Map<String, Object> configuration1 = service.getConfiguration(application, profile, label);
+        return Response.ok(configuration1).build();
     }
 
     @GET
@@ -52,8 +52,8 @@ public class ConfigurationResource {
             @PathParam("application") String application, @PathParam("profile") String profile) {
         LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
                 + " on PROPERTIES");
-        configuration = service.getConfiguration(application, profile, label);
-        return Response.ok(configuration).build();
+        Map<String, Object> configuration1 = service.getConfiguration(application, profile, label);
+        return Response.ok(configuration1).build();
     }
 
     @GET

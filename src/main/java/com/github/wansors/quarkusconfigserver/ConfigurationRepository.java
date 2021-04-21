@@ -21,8 +21,4 @@ public class ConfigurationRepository {
         return null;
         
     }
-
-    public String getConfiguration(String application, String profile){
-        return getConfiguration(application, profile, null);
-    }
 }
