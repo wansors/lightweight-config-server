@@ -20,13 +20,14 @@ public class ConfigurationFileResource {
     }
 
     public ConfigurationFileResourceType getType() {
-        int i = url.getPath().lastIndexOf('.');
+        System.out.println(url);
+        int i = url.getFile().lastIndexOf('.');
 
-        if ("properties".equalsIgnoreCase(url.getPath().substring(i + 1))) {
+        if ("properties".equalsIgnoreCase(url.getFile().substring(i + 1))) {
             return ConfigurationFileResourceType.PROPERTIES;
         }
 
-        if ("yml".equalsIgnoreCase(url.getPath().substring(i + 1))) {
+        if ("yml".equalsIgnoreCase(url.getFile().substring(i + 1))) {
             return ConfigurationFileResourceType.YAML;
         }
         return ConfigurationFileResourceType.UNDEFINED;

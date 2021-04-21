@@ -1,5 +1,8 @@
 package com.github.wansors.quarkusconfigserver;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,7 +31,15 @@ public class ConfigurationRepository {
 // {application}.(properties(5)/yml(6)) (Specific properties that apply to an  application-specific and all profiles)
 // {application}-{profile}.(properties(7)/yml(8)) (Specific properties that apply to an application-specific  and a profile-specific )
 
-        return null;
+
+        List<ConfigurationFileResource> list = new LinkedList<>();
+     
+            list.add(new ConfigurationFileResource(getClass().getClassLoader().getResource("META-INF/resources/git/server1/develop/application.properties"),1));
+            list.add(new ConfigurationFileResource(getClass().getClassLoader().getResource("META-INF/resources/git/server1/develop/application-dev.yml"),2));
+            list.add(new ConfigurationFileResource(getClass().getClassLoader().getResource("META-INF/resources/git/server1/develop/mailer-dev.properties"),3));
+        
+//new URL("classpath:org/my/package/resource.extension")
+        return list;
         
     }
 }

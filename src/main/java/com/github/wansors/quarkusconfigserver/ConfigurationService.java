@@ -26,26 +26,7 @@ public class ConfigurationService {
     ConfigurationRepository repository;
 
     public Map<String, Object> getConfiguration(String application, String profile, String label) {
-        generateConf(application, profile, label);
-        // TODO: Create config object
-        // TODO: Obtain repository files
-        // TODO: Generate configuration map<String, Object>
-        // return repository.getConfiguration(application, profile, label);
-        Map<String, Object> confMap = new HashMap<>();
-        confMap.put("Cosa", "ObjecteCosa");
-        confMap.put("altraCosa", "ObjecteAltraCosa");
-        confMap.put("Tiruri", "Ojeccttirk");
-        confMap.put("nodo.subnodo1.a", true);
-        confMap.put("nodo.subnodo1.b", "b");
-        confMap.put("nodo.subnodo1.c", Integer.valueOf(123));
-        confMap.put("nodo.subnodo1.d", false);
-
-        confMap.put("nodo.subnodo2.a", "a");
-        confMap.put("nodo.subnodo2.b", "b");
-        confMap.put("nodo.subnodo2.c", Integer.valueOf(11));
-        confMap.put("nodo.subnodo2.d", "d");
-
-        return confMap;
+        return generateConf(application, profile, label);
     }
 
     private Map<String, Object> generateConf(String application, String profile, String label) {
@@ -74,7 +55,7 @@ public class ConfigurationService {
         //Generate Map with all configs
         Map<String, Object> map = new HashMap<>();
         for (String propertyName : config.getPropertyNames()) {
-            map.put(propertyName, config.getValue(propertyName, Object.class));
+            map.put(propertyName, config.getValue(propertyName, String.class));
             LOG.info("DEBUG "+propertyName + "=" + config.getValue(propertyName, String.class));
         }
         return map;
