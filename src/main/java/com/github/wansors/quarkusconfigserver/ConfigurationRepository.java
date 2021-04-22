@@ -22,11 +22,7 @@ public class ConfigurationRepository {
         LOG.info("Obtaining config for app: "+application+" profile: "+profile+" label: "+label);
 
 
-//TODO find the 8 files that can create the configuration, priority is between ().
-// application.(properties(1)/yml(2)), (General properties that apply to all applications and all profiles)
-// application-{profile}.(properties(3).yml(4)) (General properties that apply to all applications and profile-specific )
-// {application}.(properties(5)/yml(6)) (Specific properties that apply to an  application-specific and all profiles)
-// {application}-{profile}.(properties(7)/yml(8)) (Specific properties that apply to an application-specific  and a profile-specific )
+
 
 
         List<ConfigurationFileResource> list = new LinkedList<>();

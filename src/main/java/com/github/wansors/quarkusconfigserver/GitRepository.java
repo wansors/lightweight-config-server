@@ -36,6 +36,8 @@ public class GitRepository {
                 + gitConfiguration.forcePull);
         Git git = initRepository(gitConfiguration);
 
+        // TODO cambiar de forma correcta a la rama/tag que toca
+
         // BRANCH
         try {
             git.checkout().setName("refs/remotes/origin/test").call();
@@ -46,7 +48,7 @@ public class GitRepository {
         // TAG
         // git.checkout().setName("refs/tags/v1.0.0.M3").call(); /Parece que funciona
 
-        return null;
+        return getFiles(application, profile, gitConfiguration);
     }
 
     /**
@@ -58,22 +60,24 @@ public class GitRepository {
      */
     private GitConfiguration getGitServer(String application, String profile) {
         // TODO implement
+        //Seleccionar el servidor de GIT adecuado en funcion de la aplicacion y profile
         return configResourceConfiguration.git.get(0);
     }
 
     private Git initRepository(GitConfiguration gitConf) {
         if (gitConf.git == null) {
             File tmpDir;
-    
+
             try {
                 tmpDir = Files.createTempDirectory("tmpgit").toFile();
 
                 gitConf.destinationDirectory = tmpDir;
                 LOG.warn(tmpDir.getAbsolutePath());
 
-                Git git = Git.cloneRepository().setDirectory(tmpDir).setCloneAllBranches(true).setURI(gitConf.uri).call();
-                gitConf.git =git;
-                        
+                Git git = Git.cloneRepository().setDirectory(tmpDir).setCloneAllBranches(true).setURI(gitConf.uri)
+                        .call();
+                gitConf.git = git;
+
                 Repository rep = git.getRepository();
                 List<Ref> listRefsBranches = git.branchList().setListMode(ListMode.ALL).call();
                 for (Ref refBranch : listRefsBranches) {
@@ -88,4 +92,16 @@ public class GitRepository {
         return gitConf.git;
     }
 
+    private List<ConfigurationFileResource> getFiles(String application, String profile,
+            GitConfiguration gitConfiguration) {
+        // TODO obtener la lista de ficheros con su prioridad
+        //Debemos usar el gitConfiguration.destinationDirectory para listar los ficheros y ver si existen antes de devoilverlos
+
+        //TODO find the 8 files that can create the configuration, priority is between ().
+// application.(properties(1)/yml(2)), (General properties that apply to all applications and all profiles)
+// application-{profile}.(properties(3).yml(4)) (General properties that apply to all applications and profile-specific )
+// {application}.(properties(5)/yml(6)) (Specific properties that apply to an  application-specific and all profiles)
+// {application}-{profile}.(properties(7)/yml(8)) (Specific properties that apply to an application-specific  and a profile-specific )
+        return null;
+    }
 }
