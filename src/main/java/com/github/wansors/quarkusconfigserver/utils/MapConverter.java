@@ -2,9 +2,7 @@ package com.github.wansors.quarkusconfigserver.utils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 public final class MapConverter {
 
@@ -67,14 +65,14 @@ public final class MapConverter {
 
         String stringValue = (String) value;
 
-        if (stringValue.matches("(?i:^(true|false)$)")) {
-            value = Boolean.parseBoolean(stringValue);
-        } else if (stringValue.matches("^[+-]?[0-9]+$")) {
+        if (stringValue.matches("^[+-]?[0-9]+$")) {
             value = Integer.parseInt(stringValue);
         } else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+$")) {
-            value = Double.parseDouble(stringValue);
-        } else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+f$")) {
             value = Float.parseFloat(stringValue);
+        } else if (stringValue.matches("(?i:^(true|on|yes)$)")) {
+            value = true;
+        } else if (stringValue.matches("(?i:^(false|off|no)$)")) {
+            value = false;
         }
 
         return value;
