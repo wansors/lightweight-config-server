@@ -2,6 +2,7 @@ package com.github.wansors.quarkusconfigserver;
 
 import java.io.File;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 public class GitConfiguration {
@@ -13,6 +14,8 @@ public class GitConfiguration {
 
     //Internal values
     public File destinationDirectory;
+
+    public Git git;
 
     public boolean isInitialized(){
         return destinationDirectory!=null;
