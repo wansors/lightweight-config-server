@@ -11,6 +11,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.github.wansors.quarkusconfigserver.utils.MapConverter;
+
 import org.jboss.logging.Logger;
 
 @Path("/config")
@@ -33,8 +35,8 @@ public class ConfigurationResource {
     public Response standardLabelApplicationProfileJson(@PathParam("label") String label,
             @PathParam("application") String application, @PathParam("profile") String profile) {
         LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label + " on JSON");
-        Map<String, Object> configuration1 = service.getConfiguration(application, profile, label);
-        return Response.ok(configuration1).build();
+        Map<String, Object> configuration = service.getConfiguration(application, profile, label);
+        return Response.ok(MapConverter.convert(configuration)).build();
     }
 
     @GET
@@ -52,8 +54,8 @@ public class ConfigurationResource {
             @PathParam("application") String application, @PathParam("profile") String profile) {
         LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
                 + " on PROPERTIES");
-        Map<String, Object> configuration1 = service.getConfiguration(application, profile, label);
-        return Response.ok(configuration1).build();
+        Map<String, Object> configuration = service.getConfiguration(application, profile, label);
+        return Response.ok(MapConverter.convertToPropertiesFormatString(configuration)).build();
     }
 
     @GET

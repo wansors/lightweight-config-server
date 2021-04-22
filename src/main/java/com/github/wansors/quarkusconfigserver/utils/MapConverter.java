@@ -1,4 +1,4 @@
-package com.github.wansors.quarkusconfigserver.utilities;
+package com.github.wansors.quarkusconfigserver.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,21 @@ public final class MapConverter {
         return map;
     }
 
+    public static String convertToPropertiesFormatString(Map<String, Object> map) {
+
+        StringBuilder propertiesStringBuilder = new StringBuilder();
+        for (Map.Entry<String,Object> entry : map.entrySet()) {
+            propertiesStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+        }
+        return propertiesStringBuilder.toString();
+    }
+
+    /**
+     * Recursive method for sorting values
+     * @param key
+     * @param value
+     * @param map
+     */
     private static void mapper(String key, Object value, Map<String, Object> map) {
         
         if (!key.contains(".")) {
@@ -50,14 +65,14 @@ public final class MapConverter {
 
         String stringValue = (String) value;
 
-        if (stringValue.matches("(?i:^(true|false)$)")) {
-            value = Boolean.parseBoolean(stringValue);
-        } else if (stringValue.matches("^[+-]?[0-9]+$")) {
+        if (stringValue.matches("^[+-]?[0-9]+$")) {
             value = Integer.parseInt(stringValue);
         } else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+$")) {
-            value = Double.parseDouble(stringValue);
-        } else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+f$")) {
             value = Float.parseFloat(stringValue);
+        } else if (stringValue.matches("(?i:^(true|on|yes)$)")) {
+            value = true;
+        } else if (stringValue.matches("(?i:^(false|off|no)$)")) {
+            value = false;
         }
 
         return value;
