@@ -1,7 +1,5 @@
 package com.github.wansors.quarkusconfigserver;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,13 +14,14 @@ public class ConfigurationRepository {
     private static final Logger LOG = Logger.getLogger(ConfigurationRepository.class);
 
     @Inject
-    @ConfigPrefix("quarkusconfigserver.git")
-    GitConfiguration gitConfiguration;
-
-    //TODO add startup event to clone repos if needed
+    @ConfigPrefix("quarkusconfigserver.repository")
+    ConfigRepositoryConfiguration configResourceConfiguration;
     
     public List<ConfigurationFileResource> getConfiguration(String application, String profile, String label){
         LOG.info("Obtaining config for app: "+application+" profile: "+profile+" label: "+label);
+        GitConfiguration gitConfiguration=configResourceConfiguration.git.get(0);
+        LOG.info("config "+gitConfiguration.uri +"-"+gitConfiguration.refreshRate+"-"+gitConfiguration.forcePull);
+        gitConfiguration=configResourceConfiguration.git.get(1);
         LOG.info("config "+gitConfiguration.uri +"-"+gitConfiguration.refreshRate+"-"+gitConfiguration.forcePull);
 
 //TODO find the 8 files that can create the configuration, priority is between ().
