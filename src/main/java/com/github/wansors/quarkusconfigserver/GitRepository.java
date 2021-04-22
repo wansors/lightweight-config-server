@@ -36,6 +36,16 @@ public class GitRepository {
                 + gitConfiguration.forcePull);
         Git git = initRepository(gitConfiguration);
 
+        // BRANCH
+        try {
+            git.checkout().setName("refs/remotes/origin/test").call();
+        } catch (GitAPIException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // TAG
+        // git.checkout().setName("refs/tags/v1.0.0.M3").call(); /Parece que funciona
+
         return null;
     }
 
@@ -52,25 +62,30 @@ public class GitRepository {
     }
 
     private Git initRepository(GitConfiguration gitConf) {
-        File tmpDir;
-        Git git = null;
-        try {
-            tmpDir = Files.createTempDirectory("tmpgit").toFile();
+        if (gitConf.git == null) {
+            File tmpDir;
+    
+            try {
+                tmpDir = Files.createTempDirectory("tmpgit").toFile();
 
-            gitConf.destinationDirectory = tmpDir;
-            git = Git.cloneRepository().setDirectory(tmpDir).setCloneAllBranches(true).setURI(gitConf.uri).call();
-            Repository rep = git.getRepository();
-            List<Ref> listRefsBranches = git.branchList().setListMode(ListMode.ALL).call();
-            for (Ref refBranch : listRefsBranches) {
-                System.out.println("Branch : " + refBranch.getName());
+                gitConf.destinationDirectory = tmpDir;
+                LOG.warn(tmpDir.getAbsolutePath());
+
+                Git git = Git.cloneRepository().setDirectory(tmpDir).setCloneAllBranches(true).setURI(gitConf.uri).call();
+                gitConf.git =git;
+                        
+                Repository rep = git.getRepository();
+                List<Ref> listRefsBranches = git.branchList().setListMode(ListMode.ALL).call();
+                for (Ref refBranch : listRefsBranches) {
+                    System.out.println("Branch : " + refBranch.getName());
+                }
+            } catch (IOException | GitAPIException e) {
+                // TODO Auto-generated catch block
+                LOG.warn("Unable to clone repository " + gitConf.uri, e);
             }
-
-           git.checkout().setName("refs/remotes/origin/test").call();
-        } catch (IOException | GitAPIException e) {
-            // TODO Auto-generated catch block
-            LOG.warn("Unable to clone repository " + gitConf.uri, e);
         }
-        return git;
+
+        return gitConf.git;
     }
 
 }
