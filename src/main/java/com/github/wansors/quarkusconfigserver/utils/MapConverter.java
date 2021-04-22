@@ -1,8 +1,10 @@
-package com.github.wansors.quarkusconfigserver.utilities;
+package com.github.wansors.quarkusconfigserver.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 public final class MapConverter {
 
@@ -22,6 +24,21 @@ public final class MapConverter {
         return map;
     }
 
+    public static String convertToPropertiesFormatString(Map<String, Object> map) {
+
+        StringBuilder propertiesStringBuilder = new StringBuilder();
+        for (Map.Entry<String,Object> entry : map.entrySet()) {
+            propertiesStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+        }
+        return propertiesStringBuilder.toString();
+    }
+
+    /**
+     * Recursive method for sorting values
+     * @param key
+     * @param value
+     * @param map
+     */
     private static void mapper(String key, Object value, Map<String, Object> map) {
         
         if (!key.contains(".")) {
