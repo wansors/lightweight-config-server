@@ -1,5 +1,6 @@
 package com.github.wansors.quarkusconfigserver;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;

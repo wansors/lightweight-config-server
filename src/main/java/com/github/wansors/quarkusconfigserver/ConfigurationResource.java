@@ -1,10 +1,6 @@
 package com.github.wansors.quarkusconfigserver;
 
-<<<<<<< HEAD
 import java.util.Map;
-=======
-import java.util.HashMap;
->>>>>>> issue-3_ConfigurationRepository
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -59,7 +55,6 @@ public class ConfigurationResource {
         Map<String, Object> configuration1 = service.getConfiguration(application, profile, label);
         return Response.ok(configuration1).build();
     }
-<<<<<<< HEAD
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -68,6 +63,4 @@ public class ConfigurationResource {
             @PathParam("profile") String profile) {
         return standardLabelApplicationProfileProperties(null, application, profile);
     }
-=======
->>>>>>> issue-3_ConfigurationRepository
 }
