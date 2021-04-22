@@ -9,13 +9,12 @@ import static org.hamcrest.CoreMatchers.is;
 @QuarkusTest
 public class GreetingResourceTest {
 
-    @Test
-    public void testHelloEndpoint() {
-        given()
-          .when().get("/hello-resteasy")
-          .then()
-             .statusCode(200)
-             .body(is("Hello RESTEasy"));
-    }
+   // @Test
+ //   public void testHelloEndpoint() {
+  //      given()
+   //       .when().get("/conf/label/foo-dev.json")
+   //       .then()
+  //           .statusCode(200);
+  //  }
 
 }

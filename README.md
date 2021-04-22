@@ -25,8 +25,8 @@ docker stats
 
 Benchmark | JVM | Native | spring-cloud-config-server 
 --- | --- | --- | --- 
-Memory RRS | ~200MB | - |  ~400MB 
-Boot time | 2 secs | - |  ~16secs 
+Memory RRS | ~200MB | ~40MB |  ~400MB 
+Boot time | 2 secs | 1sec |  ~16secs 
 Docker size| - | - | - 
 
 
