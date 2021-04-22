@@ -1,33 +1,35 @@
-# quarkus-config-server project
+# Quarkus Config Server. A Supersonic alternative to Spring Cloud Config Server.
+
+Quarkus Config Server implements the same endpoints as Spring Cloud Config Server with the same outputs. However this application boots faster and with less memory, ideal for k8s environments!.
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
-## Running the application in dev mode
+## Known Limitations vs Spring Cloud Config Server
+- Supports only git repositories
+- No encryption support
+- 
 
-You can run your application in dev mode that enables live coding using:
-```shell script
-./mvnw compile quarkus:dev
-```
+# Benchmarks
+Comparison have done with hyness/spring-cloud-config-server
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+docker run -it -p 8888:8888 \
+      -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/spring-cloud-samples/config-repo \
+      hyness/spring-cloud-config-server
 
-## Packaging and running the application
 
-The application can be packaged using:
-```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+docker stats
 
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
-```
+## How supersonic is it?
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+Benchmark | JVM | Native | spring-cloud-config-server 
+--- | --- | --- | --- 
+Memory RRS | ~200MB | - |  ~400MB 
+Boot time | 2 secs | - |  ~16secs 
+Docker size| - | - | - 
+
+
 
 ## Creating a native executable
 
@@ -45,13 +47,18 @@ You can then execute your native executable with: `./target/quarkus-config-serve
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
 
-## Provided examples
+# Build docker image
 
-### RESTEasy JAX-RS example
+## Native
+./mvnw package -Pnative "-Dquarkus.native.container-build=true"
+docker build -f src/main/docker/Dockerfile.native -t quarkus/configserver .
+docker run -i --rm -p 8080:8080  --name quarkusconfigserver-native quarkus/configserver
 
-REST is easy peasy with this Hello World RESTEasy resource.
+## JVM
+./mvnw clean package
+docker build -f src/main/docker/Dockerfile.jvm -t quarkus/configserver-jvm .
+docker run -i --rm -p 8081:8080 --name quarkusconfigserver-jvm quarkus/configserver-jvm
 
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
 
 
 ## Config Files preference
@@ -64,3 +71,8 @@ With git repositories, resources with file names in application* (application.pr
 // {application}-{profile}.(properties/yml) (Specific properties that apply to an application-specific  and a profile-specific )
 
 TODO revisar labels
+
+
+
+
+
