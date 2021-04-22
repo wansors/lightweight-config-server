@@ -56,7 +56,6 @@ public class ConfigurationService {
         Map<String, Object> map = new HashMap<>();
         for (String propertyName : config.getPropertyNames()) {
             map.put(propertyName, config.getValue(propertyName, String.class));
-            LOG.info("DEBUG "+propertyName + "=" + config.getValue(propertyName, String.class));
         }
         return map;
     }

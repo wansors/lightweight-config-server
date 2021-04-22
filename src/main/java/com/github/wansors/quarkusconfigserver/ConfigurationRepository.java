@@ -13,16 +13,14 @@ import io.quarkus.arc.config.ConfigPrefix;
 public class ConfigurationRepository {
     private static final Logger LOG = Logger.getLogger(ConfigurationRepository.class);
 
+
+
     @Inject
-    @ConfigPrefix("quarkusconfigserver.repository")
-    ConfigRepositoryConfiguration configResourceConfiguration;
-    
+    GitRepository gitRepository;
+
     public List<ConfigurationFileResource> getConfiguration(String application, String profile, String label){
         LOG.info("Obtaining config for app: "+application+" profile: "+profile+" label: "+label);
-        GitConfiguration gitConfiguration=configResourceConfiguration.git.get(0);
-        LOG.info("config "+gitConfiguration.uri +"-"+gitConfiguration.refreshRate+"-"+gitConfiguration.forcePull);
-        gitConfiguration=configResourceConfiguration.git.get(1);
-        LOG.info("config "+gitConfiguration.uri +"-"+gitConfiguration.refreshRate+"-"+gitConfiguration.forcePull);
+
 
 //TODO find the 8 files that can create the configuration, priority is between ().
 // application.(properties(1)/yml(2)), (General properties that apply to all applications and all profiles)
@@ -38,6 +36,10 @@ public class ConfigurationRepository {
             list.add(new ConfigurationFileResource(getClass().getClassLoader().getResource("META-INF/resources/git/server1/develop/mailer-dev.properties"),3));
         
 //new URL("classpath:org/my/package/resource.extension")
+
+//TODO real logic
+gitRepository.getConfiguration(application, profile, label);
+
         return list;
         
     }
