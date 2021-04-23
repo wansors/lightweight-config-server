@@ -8,6 +8,13 @@ quarkusconfigserver:
         - uri: https://github.com/spring-cloud-samples/config-repo.git
           refresh-rate: 15
           force-pull: false
-        - uri: http://example2.com
+        - uri: https://github.com/wansors/spring-cloud-config-samples
           refresh-rate: 10
           force-pull: true
+          pattern: 
+            - 'labels-*'
+          searchPaths:
+            - base/backoffice-ws
+            - base/backoffice-front
+            - '{profile}/backoffice-ws'
+            - '{profile}/backoffice-front'

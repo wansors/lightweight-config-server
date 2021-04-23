@@ -9,7 +9,7 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 ## Known Limitations vs Spring Cloud Config Server
 - Supports only git repositories
 - No encryption support
-- 
+- No Placeholders in Git URI
 
 # Benchmarks
 Comparison have done with hyness/spring-cloud-config-server
