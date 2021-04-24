@@ -3,6 +3,7 @@ package com.github.wansors.quarkusconfigserver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ public class GitRepositoryManager {
 
     void onStart(@Observes StartupEvent ev) {
         LOG.info("The application is starting...");
+        repositories=new HashMap<>();
 
         //  Init all repos if needed (cloneOnStart==true)
         // recorrer los objetos de configuracion
@@ -68,7 +70,7 @@ public class GitRepositoryManager {
         //Find which repository should be used
         GitRepository repository = getGitRepository(application, profile);
         //Return files
-        return repository.getFiles(application, profile);
+        return repository.getFiles(application, profile, label);
     }
 
     /**
