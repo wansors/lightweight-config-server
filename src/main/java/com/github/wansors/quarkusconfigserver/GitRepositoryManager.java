@@ -85,8 +85,18 @@ public class GitRepositoryManager {
         // la aplicacion y profile del mapa de repositorios
         // TODO Logica la misma que en
         // https://cloud.spring.io/spring-cloud-config/reference/html/#_pattern_matching_and_multiple_repositories
+
+        for (Map.Entry<String, GitRepository> entry : repositories.entrySet()) {
+            String regexKey = entry.getKey().replace("*", ".*");
+            if ((application + "-" + profile).matches(regexKey)) {
+                LOG.info("MATCH KEY: " + entry.getKey());
+                return entry.getValue();
+            }
+        }
+
+        return null;
         // Workaround obtenemos el primero
-        return repositories.get(repositories.entrySet().iterator().next().getKey());
+        // return repositories.get(repositories.entrySet().iterator().next().getKey());
     }
 
 }

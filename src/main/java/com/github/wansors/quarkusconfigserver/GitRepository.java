@@ -2,8 +2,11 @@ package com.github.wansors.quarkusconfigserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
@@ -95,25 +98,58 @@ public class GitRepository {
         // TODO Zapa obtener la lista de ficheros con su prioridad
         // TODO find the 8 files that can create the configuration, priority is between
         // ().
+
+        // Is linkedList better??
+        List<ConfigurationFileResource> configurationsList = new ArrayList<>();
+
         // A) application.(properties(1)/yml(2)), (General properties that apply to all
         // applications and all profiles)
+        addConfigurationFileResource(configurationsList, "application.properties", 1, false);
+        addConfigurationFileResource(configurationsList, "application.yml", 2, false);
 
         // B) application-{profile}.(properties(3).yml(4)) (General properties that
         // apply to all applications and profile-specific )
+        addConfigurationFileResource(configurationsList, "application-" + profile + ".properties", 3, false);
+        addConfigurationFileResource(configurationsList, "application-" + profile + ".yml", 4, false);
 
         // C) {application}.(properties(5)/yml(6)) (Specific properties that apply to an
         // application-specific and all profiles)
+        addConfigurationFileResource(configurationsList, application + ".properties", 5, true);
+        addConfigurationFileResource(configurationsList, application + ".yml", 6, true);
 
         // D) {application}-{profile}.(properties(7)/yml(8)) (Specific properties that
         // apply to an application-specific and a profile-specific )
+        addConfigurationFileResource(configurationsList, application + "-" + profile + ".properties", 7, true);
+        addConfigurationFileResource(configurationsList, application + "-" + profile + ".yml", 8, true);
 
         // Debemos usar el gitConfiguration.destinationDirectory para listar los
         // ficheros y ver si existen antes de devolverlos
         // Para los A y B, miramos si existen en la raiz.
         // Para los tipo C y D miramos si existen en la raiz o en searchPaths si no es
         // nulo
+        for (ConfigurationFileResource configurationFileResource : configurationsList) {
+            LOG.info("CONF: " + configurationFileResource.getOrdinal());
+        }
 
-        return null;
+        return configurationsList;
+    }
+
+    private void addConfigurationFileResource(List<ConfigurationFileResource> list, String fileName, int priority, Boolean searchPath) {
+        File file = new File(destinationDirectory, fileName);
+        try {
+            if (file.exists()) {
+                    list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
+            // } else if (searchPath) {
+            //     for (String path : gitConf.searchPaths) {
+            //         File fileSearch = new File(path, fileName);
+            //         if (fileSearch.exists()) {
+            //             list.add(new ConfigurationFileResource(fileSearch.toURI().toURL(), priority));
+            //         }
+            //     }
+            }
+        } catch (MalformedURLException e) {
+            LOG.warn(e);
+        }
     }
 
     // TODO Checkout method & update lastRefresh
