@@ -28,8 +28,8 @@ public class GitRepository {
         // y ver si cloneOnStart==true.
         // Si es asi inicializarlos, así la primera peticion no taradará los 6 segundos.
         // gitRepository.initRepository(gitConfiguration);
-        if(gitConf.cloneOnStart){
-            initRepository();            
+        if (gitConf.cloneOnStart) {
+            initRepository();
         }
     }
 
@@ -52,7 +52,7 @@ public class GitRepository {
     }
 
     private void initRepository() {
-        LOG.info("initRepository "+gitConf.uri);
+        LOG.info("initRepository " + gitConf.uri);
         if (git == null) {
             File tmpDir;
 
@@ -75,12 +75,12 @@ public class GitRepository {
 
     }
 
-    public void setBranch(String branchName) {
+    private void setBranch(String branchName) {
         // BRANCH
         try {
             // TODO cambiar de forma correcta a la rama/tag que toca
             // TODO si label no existe devolver error
-            git.checkout().setName("refs/remotes/origin/test").call();
+            git.checkout().setName("refs/remotes/origin/" + branchName).call();
         } catch (GitAPIException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -89,23 +89,34 @@ public class GitRepository {
         // git.checkout().setName("refs/tags/v1.0.0.M3").call(); /Parece que funciona
     }
 
-    public List<ConfigurationFileResource> getFiles(String application, String profile) {
-        
-    // TODO Zapa obtener la lista de ficheros con su prioridad
-    //TODO find the 8 files that can create the configuration, priority is between ().
-    // A) application.(properties(1)/yml(2)), (General properties that apply to all applications and all profiles)
-    // B) application-{profile}.(properties(3).yml(4)) (General properties that apply to all applications and profile-specific )
-    // C) {application}.(properties(5)/yml(6)) (Specific properties that apply to an  application-specific and all profiles)
-    // D) {application}-{profile}.(properties(7)/yml(8)) (Specific properties that apply to an application-specific  and a profile-specific )
-    //Debemos usar el gitConfiguration.destinationDirectory para listar los ficheros y ver si existen antes de devolverlos
-    //Para los A y B, miramos si existen en la raiz.
-    //Para los tipo C y D miramos si existen en la raiz o en searchPaths si no es nulo
+    public List<ConfigurationFileResource> getFiles(String application, String profile, String label) {
 
+        setBranch(label);
+        // TODO Zapa obtener la lista de ficheros con su prioridad
+        // TODO find the 8 files that can create the configuration, priority is between
+        // ().
+        // A) application.(properties(1)/yml(2)), (General properties that apply to all
+        // applications and all profiles)
 
-    return null;
-}
+        // B) application-{profile}.(properties(3).yml(4)) (General properties that
+        // apply to all applications and profile-specific )
+
+        // C) {application}.(properties(5)/yml(6)) (Specific properties that apply to an
+        // application-specific and all profiles)
+
+        // D) {application}-{profile}.(properties(7)/yml(8)) (Specific properties that
+        // apply to an application-specific and a profile-specific )
+
+        // Debemos usar el gitConfiguration.destinationDirectory para listar los
+        // ficheros y ver si existen antes de devolverlos
+        // Para los A y B, miramos si existen en la raiz.
+        // Para los tipo C y D miramos si existen en la raiz o en searchPaths si no es
+        // nulo
+
+        return null;
     }
 
+    // TODO Checkout method & update lastRefresh
 
-    //TODO Checkout method & update lastRefresh
+    //TODO pensar en el tema sincronia
 }
