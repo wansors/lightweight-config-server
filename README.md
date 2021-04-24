@@ -76,3 +76,5 @@ TODO revisar labels
 
 
 
+## Placeholders in Git Search Paths
+Config Server also supports a search path with placeholders for the {application} and {profile}

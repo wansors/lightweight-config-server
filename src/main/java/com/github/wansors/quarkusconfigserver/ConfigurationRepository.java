@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.jboss.logging.Logger;
 
 import io.quarkus.arc.config.ConfigPrefix;
+import jdk.javadoc.internal.tool.resources.version;
 
 @ApplicationScoped
 public class ConfigurationRepository {
@@ -20,23 +21,7 @@ public class ConfigurationRepository {
 
     public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label){
         LOG.info("Obtaining config for app: "+application+" profile: "+profile+" label: "+label);
-
-
-
-
-
-        List<ConfigurationFileResource> list = new LinkedList<>();
-     
-            list.add(new ConfigurationFileResource(getClass().getClassLoader().getResource("META-INF/resources/git/server1/develop/application.properties"),1));
-            list.add(new ConfigurationFileResource(getClass().getClassLoader().getResource("META-INF/resources/git/server1/develop/application-dev.yml"),2));
-            list.add(new ConfigurationFileResource(getClass().getClassLoader().getResource("META-INF/resources/git/server1/develop/mailer-dev.properties"),3));
-        
-//new URL("classpath:org/my/package/resource.extension")
-
-        //TODO real logic
-        gitRepositoryManager.getConfigurationFiles(application, profile, label);
-
-        return list;
+        return gitRepositoryManager.getConfigurationFiles(application, profile, label);
         
     }
 }

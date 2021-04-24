@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,10 @@ import org.jboss.logging.Logger;
 public class GitRepository {
 
     private static final Logger LOG = Logger.getLogger(GitRepository.class);
+
+    private static final String DEFAULT_APPLICATION = "application";
+    private static final String YAML_EXTENSION = ".yml";
+    private static final String PROPERTIES_EXTENSION = ".properties";
 
     // Internal values
     private File destinationDirectory;
@@ -82,10 +87,9 @@ public class GitRepository {
         // BRANCH
         try {
             // TODO cambiar de forma correcta a la rama/tag que toca
-            // TODO si label no existe devolver error
             git.checkout().setName("refs/remotes/origin/" + branchName).call();
         } catch (GitAPIException e) {
-            // TODO Auto-generated catch block
+            // TODO si label no existe devolver error
             e.printStackTrace();
         }
         // TAG
@@ -95,64 +99,87 @@ public class GitRepository {
     public List<ConfigurationFileResource> getFiles(String application, String profile, String label) {
 
         setBranch(label);
-        // TODO Zapa obtener la lista de ficheros con su prioridad
-        // TODO find the 8 files that can create the configuration, priority is between
-        // ().
 
-        // Is linkedList better??
-        List<ConfigurationFileResource> configurationsList = new ArrayList<>();
+        List<ConfigurationFileResource> result = new ArrayList<>();
 
-        // A) application.(properties(1)/yml(2)), (General properties that apply to all
-        // applications and all profiles)
-        addConfigurationFileResource(configurationsList, "application.properties", 1, false);
-        addConfigurationFileResource(configurationsList, "application.yml", 2, false);
+        // A) application.(properties(1)/yml(2)), 
+        // (General properties that apply to all applications and all profiles)
+        addConfigurationFileResource(result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, 1, false);
+        addConfigurationFileResource(result, DEFAULT_APPLICATION, null, YAML_EXTENSION, 2, false);
 
-        // B) application-{profile}.(properties(3).yml(4)) (General properties that
-        // apply to all applications and profile-specific )
-        addConfigurationFileResource(configurationsList, "application-" + profile + ".properties", 3, false);
-        addConfigurationFileResource(configurationsList, "application-" + profile + ".yml", 4, false);
+        // B) application-{profile}.(properties(3).yml(4))
+        // (General properties that apply to all applications and profile-specific )
+        addConfigurationFileResource(result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 3, false);
+        addConfigurationFileResource(result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 4, false);
 
-        // C) {application}.(properties(5)/yml(6)) (Specific properties that apply to an
-        // application-specific and all profiles)
-        addConfigurationFileResource(configurationsList, application + ".properties", 5, true);
-        addConfigurationFileResource(configurationsList, application + ".yml", 6, true);
+        // C) {application}.(properties(5)/yml(6))
+        // (Specific properties that apply to an application-specific and all profiles)
+        addConfigurationFileResource(result, application, null, PROPERTIES_EXTENSION, 5, true);
+        addConfigurationFileResource(result, application, null, YAML_EXTENSION, 6, true);
 
-        // D) {application}-{profile}.(properties(7)/yml(8)) (Specific properties that
-        // apply to an application-specific and a profile-specific )
-        addConfigurationFileResource(configurationsList, application + "-" + profile + ".properties", 7, true);
-        addConfigurationFileResource(configurationsList, application + "-" + profile + ".yml", 8, true);
+        // D) {application}-{profile}.(properties(7)/yml(8)) 
+        // (Specific properties that apply to an application-specific and a profile-specific )
+        addConfigurationFileResource(result, application, profile, PROPERTIES_EXTENSION, 7, true);
+        addConfigurationFileResource(result, application, profile, YAML_EXTENSION, 8, true);
 
         // Debemos usar el gitConfiguration.destinationDirectory para listar los
         // ficheros y ver si existen antes de devolverlos
         // Para los A y B, miramos si existen en la raiz.
         // Para los tipo C y D miramos si existen en la raiz o en searchPaths si no es
         // nulo
-        for (ConfigurationFileResource configurationFileResource : configurationsList) {
-            LOG.info("CONF: " + configurationFileResource.getOrdinal());
+        for (ConfigurationFileResource file : result) {
+            LOG.info("CONF: " + file.getUrl().getPath() + " priority: " + file.getOrdinal());
         }
 
-        return configurationsList;
+        return result;
     }
 
-    private void addConfigurationFileResource(List<ConfigurationFileResource> list, String fileName, int priority, Boolean searchPath) {
+    private void addConfigurationFileResource(List<ConfigurationFileResource> list, String application, String profile,
+            String extension, int priority, Boolean searchPath) {
+        String fileName = generateFilename(application, profile, extension);
+        LOG.info("CONF: " + destinationDirectory + "\\" + fileName);
         File file = new File(destinationDirectory, fileName);
         try {
             if (file.exists()) {
-                    list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
-            // } else if (searchPath) {
-            //     for (String path : gitConf.searchPaths) {
-            //         File fileSearch = new File(path, fileName);
-            //         if (fileSearch.exists()) {
-            //             list.add(new ConfigurationFileResource(fileSearch.toURI().toURL(), priority));
-            //         }
-            //     }
+                // File exists on root
+                list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
+            } else if (searchPath && gitConf.searchPaths != null) {
+                // Search for first match in each searchPath
+                for (String path : gitConf.searchPaths) {
+
+                    if (path.contains("{application}") && application != null) {
+                        path = path.replace("{application}", application);
+                        fileName = generateFilename(null, profile, extension);
+
+                    } else if (path.contains("{profile}") && profile != null) {
+                        path = path.replace("{profile}", profile);
+                        fileName = generateFilename(application, null, extension);
+
+                    } else if (path.contains("*")) {
+                        // TODO contains * in searchPath
+                        throw new UnsupportedOperationException();
+                    }
+                    file = new File(Paths.get(destinationDirectory.getAbsolutePath(), path, fileName).toString());
+                    if (file.exists()) {
+                        // File exists on root
+                        list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
+                    }
+                }
             }
         } catch (MalformedURLException e) {
             LOG.warn(e);
         }
     }
 
-    // TODO Checkout method & update lastRefresh
+    private String generateFilename(String application, String profile, String extension) {
+        StringBuilder builder = new StringBuilder();
+        if (application != null) {
+            builder.append(application);
+        }
+        if (profile != null) {
+            builder.append("-").append(profile);
+        }
+        return builder.append(extension).toString();
+    }
 
-    //TODO pensar en el tema sincronia
 }
