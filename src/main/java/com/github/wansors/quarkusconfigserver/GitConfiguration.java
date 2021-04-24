@@ -1,9 +1,9 @@
 package com.github.wansors.quarkusconfigserver;
 
-import java.io.File;
+
 import java.util.List;
 
-import org.eclipse.jgit.api.Git;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 public class GitConfiguration {
@@ -20,20 +20,14 @@ public class GitConfiguration {
 
 
     @ConfigProperty(name = "pattern")
-    public List<String> pattern=null;
+    public String pattern=null;
 
     @ConfigProperty(name = "searchPaths")
     public List<String> searchPaths=null;
 
     
 
-    //Internal values
-    public File destinationDirectory;
+ 
 
-    public Git git;
-
-    public boolean isInitialized(){
-        return destinationDirectory!=null;
-    }
     
 }

@@ -16,9 +16,9 @@ public class ConfigurationRepository {
 
 
     @Inject
-    GitRepository gitRepository;
+    GitRepositoryManager gitRepositoryManager;
 
-    public List<ConfigurationFileResource> getConfiguration(String application, String profile, String label){
+    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label){
         LOG.info("Obtaining config for app: "+application+" profile: "+profile+" label: "+label);
 
 
@@ -33,8 +33,8 @@ public class ConfigurationRepository {
         
 //new URL("classpath:org/my/package/resource.extension")
 
-//TODO real logic
-gitRepository.getConfiguration(application, profile, label);
+        //TODO real logic
+        gitRepositoryManager.getConfigurationFiles(application, profile, label);
 
         return list;
         

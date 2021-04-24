@@ -11,8 +11,7 @@ quarkusconfigserver:
         - uri: https://github.com/wansors/spring-cloud-config-samples
           refresh-rate: 10
           force-pull: true
-          pattern: 
-            - 'labels-*'
+          pattern: 'labels-*'
           searchPaths:
             - base/backoffice-ws
             - base/backoffice-front

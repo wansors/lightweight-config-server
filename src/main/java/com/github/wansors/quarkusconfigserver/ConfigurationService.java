@@ -33,7 +33,7 @@ public class ConfigurationService {
         ConfigProviderResolver resolver = ConfigProviderResolver.instance();
         ConfigBuilder builder = resolver.getBuilder();
 
-        List<ConfigurationFileResource> list = repository.getConfiguration(application, profile, label);
+        List<ConfigurationFileResource> list = repository.getConfigurationFiles(application, profile, label);
 
         List<ConfigSource> sources = new ArrayList<ConfigSource>();
 

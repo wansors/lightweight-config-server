@@ -1,0 +1,90 @@
+package com.github.wansors.quarkusconfigserver;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.ListBranchCommand.ListMode;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.jboss.logging.Logger;
+
+import io.quarkus.arc.config.ConfigPrefix;
+import io.quarkus.runtime.StartupEvent;
+
+/**
+ * 
+ * Se pueden mirar ideas de:
+ * https://github.com/spring-cloud/spring-cloud-config/blob/08b293ce3bddeda8fb6577ea191450d6f6cd1bba/spring-cloud-config-server/src/main/java/org/springframework/cloud/config/server/environment/MultipleJGitEnvironmentRepository.java
+ * 
+ */
+
+@ApplicationScoped
+public class GitRepositoryManager {
+    private static final Logger LOG = Logger.getLogger(ConfigurationRepository.class);
+
+    @Inject
+    @ConfigPrefix("quarkusconfigserver.repository")
+    ConfigRepositoryConfiguration configResourceConfiguration;
+
+    // Mapa de pattern,gitRepository
+    private Map<String, GitRepository> repositories;
+
+    void onStart(@Observes StartupEvent ev) {
+        LOG.info("The application is starting...");
+
+        //  Init all repos if needed (cloneOnStart==true)
+        // recorrer los objetos de configuracion
+        // Agregar dichos repositories al mapa repositories
+        for(GitConfiguration gitConfiguration: configResourceConfiguration.git){            
+            String key;
+            if(null==gitConfiguration.pattern){
+                key="*";
+            }else{
+                key=gitConfiguration.pattern;
+            }
+
+            GitRepository repository=new GitRepository(gitConfiguration);
+            repositories.put(key, repository);
+        }
+
+
+
+    }
+
+
+    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) {
+        //Find which repository should be used
+        GitRepository repository = getGitRepository(application, profile);
+        //Return files
+        return repository.getFiles(application, profile);
+    }
+
+    /**
+     * Looks at the diferent gits and return the one matching the request
+     * 
+     * @param application
+     * @param profile
+     * @return
+     */
+    private GitRepository getGitRepository(String application, String profile) {
+        // TODO Zapa implementar. Seleccionar el servidor de GIT adecuado en funcion de
+        // la aplicacion y profile del mapa de repositorios
+        // TODO Logica la misma que en
+        // https://cloud.spring.io/spring-cloud-config/reference/html/#_pattern_matching_and_multiple_repositories
+        // Workaround obtenemos el primero
+        return repositories.get(repositories.entrySet().iterator().next().getKey());
+    }
+
+}
