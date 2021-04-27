@@ -1,5 +1,6 @@
 package com.github.wansors.quarkusconfigserver;
 
+import java.io.File;
 import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
@@ -23,6 +24,8 @@ public class ConfigurationResource {
 
     @Inject
     ConfigurationService service;
+
+
 
     /**
      * 
@@ -65,4 +68,18 @@ public class ConfigurationResource {
             @PathParam("profile") String profile) {
         return standardLabelApplicationProfileProperties(null, application, profile);
     }
+
+
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Path("/{application}/{profile}/{label}/{filePath:.*}")
+    public Response getPlainTextFile(@PathParam("label") String label,
+    @PathParam("application") String application, @PathParam("profile") String profile, @PathParam("filePath") String filePath) {
+        LOG.info("Requesting plain text file "+filePath);
+        File file=service.getPlainTextFile(label, application, profile,filePath);
+        return Response.ok(file, MediaType.APPLICATION_OCTET_STREAM)
+        .header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"" ) //optional
+        .build();
+    }
+  
 }

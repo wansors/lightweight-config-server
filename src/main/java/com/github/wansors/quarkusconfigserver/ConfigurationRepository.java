@@ -1,14 +1,12 @@
 package com.github.wansors.quarkusconfigserver;
 
-import java.util.LinkedList;
+import java.io.File;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.jboss.logging.Logger;
 
-import io.quarkus.arc.config.ConfigPrefix;
-import jdk.javadoc.internal.tool.resources.version;
 
 @ApplicationScoped
 public class ConfigurationRepository {
@@ -23,5 +21,9 @@ public class ConfigurationRepository {
         LOG.info("Obtaining config for app: "+application+" profile: "+profile+" label: "+label);
         return gitRepositoryManager.getConfigurationFiles(application, profile, label);
         
+    }
+
+    public File getPlainTextFile(String label, String application, String profile, String path) {
+        return gitRepositoryManager.getPlainTextFile( label,  application,  profile,  path);
     }
 }

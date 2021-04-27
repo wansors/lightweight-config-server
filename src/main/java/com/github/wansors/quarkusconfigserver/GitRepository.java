@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,6 +181,11 @@ public class GitRepository {
             builder.append("-").append(profile);
         }
         return builder.append(extension).toString();
+    }
+
+    public File getPlainTextFile(String label, String path) {
+        setBranch(label);
+        return new File(Paths.get(destinationDirectory.getAbsolutePath(), path).toString());
     }
 
 }

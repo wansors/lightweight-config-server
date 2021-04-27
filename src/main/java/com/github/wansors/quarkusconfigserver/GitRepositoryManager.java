@@ -1,8 +1,6 @@
 package com.github.wansors.quarkusconfigserver;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,14 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.ListBranchCommand.ListMode;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
+
 import org.jboss.logging.Logger;
 
 import io.quarkus.arc.config.ConfigPrefix;
@@ -97,6 +88,11 @@ public class GitRepositoryManager {
         return null;
         // Workaround obtenemos el primero
         // return repositories.get(repositories.entrySet().iterator().next().getKey());
+    }
+
+
+    public File getPlainTextFile(String label, String application, String profile, String path) {        
+        return getGitRepository(application, profile).getPlainTextFile( label, path);
     }
 
 }

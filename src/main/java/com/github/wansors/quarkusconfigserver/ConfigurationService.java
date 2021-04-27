@@ -1,5 +1,6 @@
 package com.github.wansors.quarkusconfigserver;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +70,11 @@ public class ConfigurationService {
 
         }
         return null;
+    }
+
+
+    public File getPlainTextFile(String label, String application, String profile, String path) {
+        return repository.getPlainTextFile(label,  application,  profile,  path);
     }
 
 }
