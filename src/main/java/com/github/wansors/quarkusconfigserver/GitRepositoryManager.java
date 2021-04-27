@@ -58,7 +58,7 @@ public class GitRepositoryManager {
     }
 
 
-    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) {
+    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) throws ApiWsException {
         //Find which repository should be used
         GitRepository repository = getGitRepository(application, profile);
         //Return files

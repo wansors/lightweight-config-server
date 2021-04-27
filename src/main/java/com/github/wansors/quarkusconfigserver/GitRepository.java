@@ -88,26 +88,26 @@ public class GitRepository {
 
     }
 
-    private void setBranch(String branchName) {
+    private void setBranch(String branchName) throws ApiWsException {
         // BRANCH
         try {
             // TODO cambiar de forma correcta a la rama/tag que toca
             git.checkout().setName("refs/remotes/origin/" + branchName).call();
         } catch (GitAPIException e) {
-            // TODO si label no existe devolver error
-            e.printStackTrace();
+            // Label does not exist
+            throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
         }
         // TAG
         // git.checkout().setName("refs/tags/v1.0.0.M3").call(); /Parece que funciona
     }
 
-    public List<ConfigurationFileResource> getFiles(String application, String profile, String label) {
+    public List<ConfigurationFileResource> getFiles(String application, String profile, String label) throws ApiWsException {
 
         setBranch(label);
 
         List<ConfigurationFileResource> result = new ArrayList<>();
 
-        // A) application.(properties(1)/yml(2)), 
+        // A) application.(properties(1)/yml(2)),
         // (General properties that apply to all applications and all profiles)
         addConfigurationFileResource(result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, 1, false);
         addConfigurationFileResource(result, DEFAULT_APPLICATION, null, YAML_EXTENSION, 2, false);
@@ -122,8 +122,9 @@ public class GitRepository {
         addConfigurationFileResource(result, application, null, PROPERTIES_EXTENSION, 5, true);
         addConfigurationFileResource(result, application, null, YAML_EXTENSION, 6, true);
 
-        // D) {application}-{profile}.(properties(7)/yml(8)) 
-        // (Specific properties that apply to an application-specific and a profile-specific )
+        // D) {application}-{profile}.(properties(7)/yml(8))
+        // (Specific properties that apply to an application-specific and a
+        // profile-specific )
         addConfigurationFileResource(result, application, profile, PROPERTIES_EXTENSION, 7, true);
         addConfigurationFileResource(result, application, profile, YAML_EXTENSION, 8, true);
 
@@ -191,7 +192,7 @@ public class GitRepository {
         setBranch(label);
         File file = new File(Paths.get(destinationDirectory.getAbsolutePath(), path).toString());
 
-        if(!file.exists()){
+        if (!file.exists()) {
             throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
         }
         return new File(Paths.get(destinationDirectory.getAbsolutePath(), path).toString());

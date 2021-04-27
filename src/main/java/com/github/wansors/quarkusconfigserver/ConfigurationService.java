@@ -28,11 +28,11 @@ public class ConfigurationService {
     @Inject
     ConfigurationRepository repository;
 
-    public Map<String, Object> getConfiguration(String application, String profile, String label) {
+    public Map<String, Object> getConfiguration(String application, String profile, String label)  throws ApiWsException {
         return generateConf(application, profile, label);
     }
 
-    private Map<String, Object> generateConf(String application, String profile, String label) {
+    private Map<String, Object> generateConf(String application, String profile, String label) throws ApiWsException {
         ConfigProviderResolver resolver = ConfigProviderResolver.instance();
         ConfigBuilder builder = resolver.getBuilder();
 

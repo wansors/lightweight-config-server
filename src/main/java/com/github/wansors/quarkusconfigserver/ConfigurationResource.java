@@ -37,7 +37,7 @@ public class ConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{label}/{application}-{profile}.json")
     public Response standardLabelApplicationProfileJson(@PathParam("label") String label,
-            @PathParam("application") String application, @PathParam("profile") String profile) {
+            @PathParam("application") String application, @PathParam("profile") String profile)  throws ApiWsException {
         LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label + " on JSON");
         Map<String, Object> configuration = service.getConfiguration(application, profile, label);
         return Response.ok(MapConverter.convert(configuration)).build();
@@ -47,7 +47,7 @@ public class ConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{application}-{profile}.json")
     public Response standardApplicationProfileJson(@PathParam("application") String application,
-            @PathParam("profile") String profile) {
+            @PathParam("profile") String profile)  throws ApiWsException {
         return standardLabelApplicationProfileJson(null, application, profile);
     }
 
@@ -55,7 +55,7 @@ public class ConfigurationResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{label}/{application}-{profile}.properties")
     public Response standardLabelApplicationProfileProperties(@PathParam("label") String label,
-            @PathParam("application") String application, @PathParam("profile") String profile) {
+            @PathParam("application") String application, @PathParam("profile") String profile)  throws ApiWsException {
         LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
                 + " on PROPERTIES");
         Map<String, Object> configuration = service.getConfiguration(application, profile, label);
@@ -66,7 +66,7 @@ public class ConfigurationResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{application}-{profile}.properties")
     public Response standardApplicationProfileProperties(@PathParam("application") String application,
-            @PathParam("profile") String profile) {
+            @PathParam("profile") String profile)  throws ApiWsException {
         return standardLabelApplicationProfileProperties(null, application, profile);
     }
 

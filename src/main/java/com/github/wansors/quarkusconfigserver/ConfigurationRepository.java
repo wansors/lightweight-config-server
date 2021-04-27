@@ -20,7 +20,7 @@ public class ConfigurationRepository {
     @Inject
     GitRepositoryManager gitRepositoryManager;
 
-    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label){
+    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) throws ApiWsException{
         LOG.info("Obtaining config for app: "+application+" profile: "+profile+" label: "+label);
         return gitRepositoryManager.getConfigurationFiles(application, profile, label);
         

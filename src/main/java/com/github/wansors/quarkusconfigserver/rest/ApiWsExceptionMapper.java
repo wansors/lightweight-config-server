@@ -12,7 +12,13 @@ public class ApiWsExceptionMapper implements ExceptionMapper<ApiWsException> {
 
     @Override
     public Response toResponse(ApiWsException exception) {
-        return Response.status(exception.getStatusCode()).build();
+        ResponseErrorJson error = new ResponseErrorJson();
+
+        error.setStatus(exception.getStatusCode());
+        error.setError(exception.getErrorType());
+        error.setMessage(exception.getLocalizedMessage());
+
+        return Response.status(exception.getStatusCode()).entity(error).build();
     }
-    
+
 }
