@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.spi.ConfigBuilder;
 import org.eclipse.microprofile.config.spi.ConfigProviderResolver;
@@ -73,7 +75,7 @@ public class ConfigurationService {
     }
 
 
-    public File getPlainTextFile(String label, String application, String profile, String path) {
+    public File getPlainTextFile(String label, String application, String profile, String path) throws ApiWsException {
         return repository.getPlainTextFile(label,  application,  profile,  path);
     }
 

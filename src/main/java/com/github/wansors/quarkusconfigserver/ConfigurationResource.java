@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
 import com.github.wansors.quarkusconfigserver.utils.MapConverter;
 
 import org.jboss.logging.Logger;
@@ -74,7 +75,7 @@ public class ConfigurationResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Path("/{application}/{profile}/{label}/{filePath:.*}")
     public Response getPlainTextFile(@PathParam("label") String label,
-    @PathParam("application") String application, @PathParam("profile") String profile, @PathParam("filePath") String filePath) {
+    @PathParam("application") String application, @PathParam("profile") String profile, @PathParam("filePath") String filePath) throws ApiWsException {
         LOG.info("Requesting plain text file "+filePath);
         File file=service.getPlainTextFile(label, application, profile,filePath);
         return Response.ok(file, MediaType.APPLICATION_OCTET_STREAM)

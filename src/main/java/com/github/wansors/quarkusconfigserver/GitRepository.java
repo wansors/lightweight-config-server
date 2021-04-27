@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
+import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCode;
+import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCodeEnum;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -183,8 +187,13 @@ public class GitRepository {
         return builder.append(extension).toString();
     }
 
-    public File getPlainTextFile(String label, String path) {
+    public File getPlainTextFile(String label, String path) throws ApiWsException {
         setBranch(label);
+        File file = new File(Paths.get(destinationDirectory.getAbsolutePath(), path).toString());
+
+        if(!file.exists()){
+            throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
+        }
         return new File(Paths.get(destinationDirectory.getAbsolutePath(), path).toString());
     }
 

@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
+
 import org.jboss.logging.Logger;
 
 
@@ -23,7 +26,7 @@ public class ConfigurationRepository {
         
     }
 
-    public File getPlainTextFile(String label, String application, String profile, String path) {
+    public File getPlainTextFile(String label, String application, String profile, String path) throws ApiWsException {
         return gitRepositoryManager.getPlainTextFile( label,  application,  profile,  path);
     }
 }

@@ -9,6 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
 
 import org.jboss.logging.Logger;
 
@@ -91,7 +92,7 @@ public class GitRepositoryManager {
     }
 
 
-    public File getPlainTextFile(String label, String application, String profile, String path) {        
+    public File getPlainTextFile(String label, String application, String profile, String path) throws ApiWsException {        
         return getGitRepository(application, profile).getPlainTextFile( label, path);
     }
 
