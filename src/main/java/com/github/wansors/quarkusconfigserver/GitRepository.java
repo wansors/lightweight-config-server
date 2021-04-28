@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
@@ -15,6 +17,7 @@ import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCode;
 import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCodeEnum;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListTagCommand;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
@@ -28,13 +31,14 @@ public class GitRepository {
     private static final String DEFAULT_APPLICATION = "application";
     private static final String YAML_EXTENSION = ".yml";
     private static final String PROPERTIES_EXTENSION = ".properties";
+    private static final String DEFAULT_KEY = "";
+
 
     // Internal values
-    private File destinationDirectory;
-
-    private Git git;
+    private Map<String, GitRepositoryBranch> gitRepositoryBranches = new HashMap<>();
 
     private GitConfiguration gitConf;
+    private Git initialGit;
 
     public GitRepository(GitConfiguration gitConf) {
         this.gitConf = gitConf;
@@ -46,41 +50,21 @@ public class GitRepository {
         }
     }
 
-    /**
-     * Time of the last refresh of the git repository.
-     */
-    private long lastRefresh = 0;
+ 
 
-    protected boolean shouldPull() {
 
-        if (gitConf.refreshRate > 0 && System.currentTimeMillis() - this.lastRefresh < (gitConf.refreshRate * 1000)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean isInitialized() {
-        return destinationDirectory != null;
-    }
 
     private void initRepository() {
-        LOG.info("initRepository " + gitConf.uri);
-        if (git == null) {
-            File tmpDir;
+        if (!gitRepositoryBranches.containsKey(DEFAULT_KEY)) {
+            LOG.info("initRepository " + gitConf.uri);
+           
 
             try {
-                tmpDir = Files.createTempDirectory("tmpgit").toFile();
-
-                destinationDirectory = tmpDir;
-                LOG.warn(tmpDir.getAbsolutePath());
-
-                git = Git.cloneRepository().setDirectory(tmpDir).setCloneAllBranches(true).setURI(gitConf.uri).call();
-                Repository rep = git.getRepository();
-                List<Ref> listRefsBranches = git.branchList().setListMode(ListMode.ALL).call();
-                for (Ref refBranch : listRefsBranches) {
-                    System.out.println("Branch : " + refBranch.getName());
-                }
+                GitRepositoryBranch gitRepositoryBranch = new GitRepositoryBranch(DEFAULT_KEY, gitConf);
+                gitRepositoryBranch.init();
+                initialGit=gitRepositoryBranch.getGit();
+                gitRepositoryBranches.put(DEFAULT_KEY, gitRepositoryBranch);                
+                LOG.warn(gitRepositoryBranch.getDestinationDirectory().getAbsolutePath());
             } catch (IOException | GitAPIException e) {
                 LOG.warn("Unable to clone repository " + gitConf.uri, e);
             }
@@ -88,45 +72,89 @@ public class GitRepository {
 
     }
 
-    private void setBranch(String branchName) throws ApiWsException {
-        // BRANCH
+    private boolean containsBranch(String branchName) throws GitAPIException {
+        for (Ref branch : initialGit.tagList().call()) {
+            if (branch.getName().equals(branchName)) {
+                LOG.info("Branch : " + branch.getName());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsTag(String tagName) throws GitAPIException {
+        for (Ref tag : initialGit.tagList().call()) {
+            if (tag.getName().equals(tagName)) {
+                LOG.info("Tag : " + tag.getName());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private File getBranch(String branchName) {
+        String name;
+        File file = null;
         try {
-            // TODO cambiar de forma correcta a la rama/tag que toca
-            git.checkout().setName("refs/remotes/origin/" + branchName).call();
+            if (containsTag(branchName)) {
+                // TAG
+                name = "refs/tags/" + branchName;
+            } else if (containsBranch(branchName)) {
+                // BRANCH
+                name = "refs/remotes/origin/" + branchName;
+            } else {
+                throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
+            }
+
+            if (gitRepositoryBranches.containsKey(name)) {
+                GitRepositoryBranch gitRepositoryBranch =gitRepositoryBranches.get(name);
+                //Pull latest changes
+                gitRepositoryBranch.pull();
+                // Ya hemos accedido a esta rama con anterioridad
+                file = gitRepositoryBranch.getDestinationDirectory();
+            } else {
+                GitRepositoryBranch gitRepositoryBranch =gitRepositoryBranches.get(DEFAULT_KEY);
+                //Pull latest changes
+                GitRepositoryBranch newBranch =gitRepositoryBranch.duplicate(branchName);
+                newBranch.pull();
+                gitRepositoryBranches.put(name, newBranch);                
+                file = newBranch.getDestinationDirectory();
+            }
+
         } catch (GitAPIException e) {
             // Label does not exist
             throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
         }
-        // TAG
-        // git.checkout().setName("refs/tags/v1.0.0.M3").call(); /Parece que funciona
+
+        return file;
     }
 
-    public List<ConfigurationFileResource> getFiles(String application, String profile, String label) throws ApiWsException {
+    public List<ConfigurationFileResource> getFiles(String application, String profile, String label) {
 
-        setBranch(label);
+        File dir = getBranch(label);
 
         List<ConfigurationFileResource> result = new ArrayList<>();
 
         // A) application.(properties(1)/yml(2)),
         // (General properties that apply to all applications and all profiles)
-        addConfigurationFileResource(result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, 1, false);
-        addConfigurationFileResource(result, DEFAULT_APPLICATION, null, YAML_EXTENSION, 2, false);
+        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, 1, false);
+        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, YAML_EXTENSION, 2, false);
 
         // B) application-{profile}.(properties(3).yml(4))
         // (General properties that apply to all applications and profile-specific )
-        addConfigurationFileResource(result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 3, false);
-        addConfigurationFileResource(result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 4, false);
+        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 3, false);
+        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 4, false);
 
         // C) {application}.(properties(5)/yml(6))
         // (Specific properties that apply to an application-specific and all profiles)
-        addConfigurationFileResource(result, application, null, PROPERTIES_EXTENSION, 5, true);
-        addConfigurationFileResource(result, application, null, YAML_EXTENSION, 6, true);
+        addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, 5, true);
+        addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, 6, true);
 
         // D) {application}-{profile}.(properties(7)/yml(8))
         // (Specific properties that apply to an application-specific and a
         // profile-specific )
-        addConfigurationFileResource(result, application, profile, PROPERTIES_EXTENSION, 7, true);
-        addConfigurationFileResource(result, application, profile, YAML_EXTENSION, 8, true);
+        addConfigurationFileResource(dir, result, application, profile, PROPERTIES_EXTENSION, 7, true);
+        addConfigurationFileResource(dir, result, application, profile, YAML_EXTENSION, 8, true);
 
         // Debemos usar el gitConfiguration.destinationDirectory para listar los
         // ficheros y ver si existen antes de devolverlos
@@ -140,11 +168,11 @@ public class GitRepository {
         return result;
     }
 
-    private void addConfigurationFileResource(List<ConfigurationFileResource> list, String application, String profile,
-            String extension, int priority, Boolean searchPath) {
+    private void addConfigurationFileResource(File dir, List<ConfigurationFileResource> list, String application,
+            String profile, String extension, int priority, Boolean searchPath) {
         String fileName = generateFilename(application, profile, extension);
-        LOG.info("CONF: " + destinationDirectory + "\\" + fileName);
-        File file = new File(destinationDirectory, fileName);
+        LOG.info("CONF: " + dir + "\\" + fileName);
+        File file = new File(dir, fileName);
         try {
             if (file.exists()) {
                 // File exists on root
@@ -165,7 +193,7 @@ public class GitRepository {
                         // TODO contains * in searchPath
                         throw new UnsupportedOperationException();
                     }
-                    file = new File(Paths.get(destinationDirectory.getAbsolutePath(), path, fileName).toString());
+                    file = new File(Paths.get(dir.getAbsolutePath(), path, fileName).toString());
                     if (file.exists()) {
                         // File exists on root
                         list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
@@ -188,14 +216,14 @@ public class GitRepository {
         return builder.append(extension).toString();
     }
 
-    public File getPlainTextFile(String label, String path) throws ApiWsException {
-        setBranch(label);
-        File file = new File(Paths.get(destinationDirectory.getAbsolutePath(), path).toString());
+    public File getPlainTextFile(String label, String path) {
+        File branchDestinationDirectory = getBranch(label);
+        File file = new File(Paths.get(branchDestinationDirectory.getAbsolutePath(), path).toString());
 
         if (!file.exists()) {
             throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
         }
-        return new File(Paths.get(destinationDirectory.getAbsolutePath(), path).toString());
+        return new File(Paths.get(branchDestinationDirectory.getAbsolutePath(), path).toString());
     }
 
 }

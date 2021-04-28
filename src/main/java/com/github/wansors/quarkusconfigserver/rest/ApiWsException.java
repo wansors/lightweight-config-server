@@ -5,7 +5,7 @@ package com.github.wansors.quarkusconfigserver.rest;
  * Exception which returns the existing errors from API rest
  *
  */
-public class ApiWsException extends Exception {
+public class ApiWsException extends RuntimeException {
     /**
      * Serial UID
      */

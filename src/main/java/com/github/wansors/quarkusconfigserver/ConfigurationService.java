@@ -28,11 +28,11 @@ public class ConfigurationService {
     @Inject
     ConfigurationRepository repository;
 
-    public Map<String, Object> getConfiguration(String application, String profile, String label)  throws ApiWsException {
+    public Map<String, Object> getConfiguration(String application, String profile, String label)  {
         return generateConf(application, profile, label);
     }
 
-    private Map<String, Object> generateConf(String application, String profile, String label) throws ApiWsException {
+    private Map<String, Object> generateConf(String application, String profile, String label) {
         ConfigProviderResolver resolver = ConfigProviderResolver.instance();
         ConfigBuilder builder = resolver.getBuilder();
 
@@ -75,7 +75,7 @@ public class ConfigurationService {
     }
 
 
-    public File getPlainTextFile(String label, String application, String profile, String path) throws ApiWsException {
+    public File getPlainTextFile(String label, String application, String profile, String path) {
         return repository.getPlainTextFile(label,  application,  profile,  path);
     }
 
