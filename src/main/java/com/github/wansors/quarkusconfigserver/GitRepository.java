@@ -33,38 +33,31 @@ public class GitRepository {
     private static final String PROPERTIES_EXTENSION = ".properties";
     private static final String DEFAULT_KEY = "";
 
-
     // Internal values
     private Map<String, GitRepositoryBranch> gitRepositoryBranches = new HashMap<>();
 
     private GitConfiguration gitConf;
-    private Git initialGit;
 
     public GitRepository(GitConfiguration gitConf) {
         this.gitConf = gitConf;
-        // y ver si cloneOnStart==true.
-        // Si es asi inicializarlos, así la primera peticion no taradará los 6 segundos.
-        // gitRepository.initRepository(gitConfiguration);
         if (gitConf.cloneOnStart) {
             initRepository();
         }
     }
 
- 
-
-
+    private Git getInitialGit() {
+        return gitRepositoryBranches.get(DEFAULT_KEY).getGit();
+    }
 
     private void initRepository() {
         if (!gitRepositoryBranches.containsKey(DEFAULT_KEY)) {
-            LOG.info("initRepository " + gitConf.uri);
-           
+            LOG.info("Initializing Repository for " + gitConf.uri);
 
             try {
-                GitRepositoryBranch gitRepositoryBranch = new GitRepositoryBranch(DEFAULT_KEY, gitConf);
+                GitRepositoryBranch gitRepositoryBranch = new GitRepositoryBranch(gitConf);
                 gitRepositoryBranch.init();
-                initialGit=gitRepositoryBranch.getGit();
-                gitRepositoryBranches.put(DEFAULT_KEY, gitRepositoryBranch);                
-                LOG.warn(gitRepositoryBranch.getDestinationDirectory().getAbsolutePath());
+                gitRepositoryBranches.put(DEFAULT_KEY, gitRepositoryBranch);
+                LOG.info("Storing repository on " + gitRepositoryBranch.getDestinationDirectory().getAbsolutePath());
             } catch (IOException | GitAPIException e) {
                 LOG.warn("Unable to clone repository " + gitConf.uri, e);
             }
@@ -73,9 +66,10 @@ public class GitRepository {
     }
 
     private boolean containsBranch(String branchName) throws GitAPIException {
-        for (Ref branch : initialGit.tagList().call()) {
-            if (branch.getName().equals(branchName)) {
-                LOG.info("Branch : " + branch.getName());
+        for (Ref branch : getInitialGit().branchList().setListMode(ListMode.ALL).call()) {
+            LOG.info("Branch : " + branch.getName());
+            if (branch.getName().endsWith("/" + branchName)) {
+
                 return true;
             }
         }
@@ -83,42 +77,57 @@ public class GitRepository {
     }
 
     private boolean containsTag(String tagName) throws GitAPIException {
-        for (Ref tag : initialGit.tagList().call()) {
-            if (tag.getName().equals(tagName)) {
-                LOG.info("Tag : " + tag.getName());
+        for (Ref tag : getInitialGit().tagList().call()) {
+            LOG.info("Tag : " + tag.getName());
+            if (tag.getName().endsWith("/" + tagName)) {
+
                 return true;
             }
         }
         return false;
     }
 
-    private File getBranch(String branchName) {
-        String name;
-        File file = null;
-        try {
-            if (containsTag(branchName)) {
-                // TAG
-                name = "refs/tags/" + branchName;
-            } else if (containsBranch(branchName)) {
-                // BRANCH
-                name = "refs/remotes/origin/" + branchName;
-            } else {
-                throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
-            }
+    private File getBranch(String branchName) {        
+        // Pull changes if needed
+        GitRepositoryBranch defaultGitRepositoryBranch = gitRepositoryBranches.get(DEFAULT_KEY);
+        defaultGitRepositoryBranch.pull();
 
-            if (gitRepositoryBranches.containsKey(name)) {
-                GitRepositoryBranch gitRepositoryBranch =gitRepositoryBranches.get(name);
-                //Pull latest changes
+        if (branchName == null) {
+            LOG.info("Requesting empty branch, returning default");
+            // Return default branch
+            return defaultGitRepositoryBranch.getDestinationDirectory();
+        }
+
+        File file = null;
+
+        try {
+
+            if (gitRepositoryBranches.containsKey(branchName)) {
+                LOG.info("Branch " + branchName+" is already cloned");
+                // Branch has already been downloaded
+                GitRepositoryBranch gitRepositoryBranch = gitRepositoryBranches.get(branchName);
+                // Pull latest changes
                 gitRepositoryBranch.pull();
                 // Ya hemos accedido a esta rama con anterioridad
                 file = gitRepositoryBranch.getDestinationDirectory();
             } else {
-                GitRepositoryBranch gitRepositoryBranch =gitRepositoryBranches.get(DEFAULT_KEY);
-                //Pull latest changes
-                GitRepositoryBranch newBranch =gitRepositoryBranch.duplicate(branchName);
-                newBranch.pull();
-                gitRepositoryBranches.put(name, newBranch);                
-                file = newBranch.getDestinationDirectory();
+                LOG.info("Branch " + branchName+" is not cloned");
+                String name;
+                if (containsBranch(branchName)) {
+                    // BRANCH
+                    name = "refs/remotes/origin/" + branchName;
+                    
+                }else if (containsTag(branchName)) {
+                    // TAG
+                    name = "refs/tags/" + branchName;
+                } else {
+                    throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
+                }
+                // First access to the brach
+                GitRepositoryBranch newBranchRepository = defaultGitRepositoryBranch.duplicate(name);
+                newBranchRepository.pull();
+                gitRepositoryBranches.put(branchName, newBranchRepository);
+                file = newBranchRepository.getDestinationDirectory();
             }
 
         } catch (GitAPIException e) {
@@ -217,6 +226,7 @@ public class GitRepository {
     }
 
     public File getPlainTextFile(String label, String path) {
+        LOG.info("Requesting plain text file " + path + " for label " + label);
         File branchDestinationDirectory = getBranch(label);
         File file = new File(Paths.get(branchDestinationDirectory.getAbsolutePath(), path).toString());
 

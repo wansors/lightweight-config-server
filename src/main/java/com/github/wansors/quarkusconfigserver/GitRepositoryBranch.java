@@ -6,13 +6,17 @@ import java.nio.file.Files;
 
 import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
 import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCodeEnum;
+import com.github.wansors.quarkusconfigserver.utils.FileUtils;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.jboss.logging.Logger;
 
 public class GitRepositoryBranch {
+    private static final Logger LOG = Logger.getLogger(GitRepositoryBranch.class);
     /**
      * Time of the last refresh of the git repository.
      */
@@ -25,15 +29,21 @@ public class GitRepositoryBranch {
 
     private GitConfiguration gitConf;
 
-
-    public GitRepositoryBranch(GitConfiguration gitConf){
-        this.gitConf=gitConf;
+    public GitRepositoryBranch(GitConfiguration gitConf) {
+        this.gitConf = gitConf;
     }
 
-    public void init() throws IOException, InvalidRemoteException, TransportException, GitAPIException{
-        if(destinationDirectory!=null){
-            this.destinationDirectory= Files.createTempDirectory("tmpgit").toFile();
-            this.git = Git.cloneRepository().setDirectory(destinationDirectory).setCloneAllBranches(true).setURI(gitConf.uri).call();
+    public GitRepositoryBranch(File destinationDirectory, Git git, GitConfiguration gitConf) {
+        this.destinationDirectory = destinationDirectory;
+        this.gitConf = gitConf;
+        this.git = git;
+    }
+
+    public void init() throws IOException, InvalidRemoteException, TransportException, GitAPIException {
+        if (destinationDirectory == null) {
+            this.destinationDirectory = Files.createTempDirectory("tmpgit").toFile();
+            this.git = Git.cloneRepository().setDirectory(destinationDirectory).setCloneAllBranches(true)
+                    .setURI(gitConf.uri).call();
         }
     }
 
@@ -46,31 +56,51 @@ public class GitRepositoryBranch {
         return true;
     }
 
-    public File getDestinationDirectory(){
+    public File getDestinationDirectory() {
         return destinationDirectory;
     }
 
     public void pull() {
 
         if (shouldPull()) {
-            lastRefresh=System.currentTimeMillis();
-                try {
-                    git.pull().call();
-                } catch (GitAPIException  e) {
-                    throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
-                }
-            
+            lastRefresh = System.currentTimeMillis();
+            try {
+                git.pull().call();
+            } catch (GitAPIException e) {
+                throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
+            }
+
         }
 
     }
 
-    public Git getGit(){
+    public Git getGit() {
         return git;
     }
 
-    public GitRepositoryBranch duplicate(String branchName){
-        GitRepositoryBranch gitRepositoryBranch=null;
+    public GitRepositoryBranch duplicate(String branchName) {
+        LOG.info("Duplicate git repo for "+branchName);
+       
+        try {
 
-        return gitRepositoryBranch;
+            // Duplicate current dir
+            File tmpDestinationDirectory =  Files.createTempDirectory("tmpgit").toFile();
+            FileUtils.copyDirectory(destinationDirectory, tmpDestinationDirectory);
+
+            //Change to new branch
+            Git tmpGit = Git.open(tmpDestinationDirectory);
+            //tmpGit.checkout().setName(branchName).call();
+            tmpGit.checkout().
+            setCreateBranch(true).
+            setName(branchName).
+            setUpstreamMode(SetupUpstreamMode.TRACK).
+            setStartPoint(branchName).
+            call();            
+            return new GitRepositoryBranch(tmpDestinationDirectory, tmpGit, gitConf);
+        } catch (IOException | GitAPIException e) {
+            LOG.error(e);
+            throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
+        }
+
     }
 }
