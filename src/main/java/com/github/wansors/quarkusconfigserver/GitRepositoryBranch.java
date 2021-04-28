@@ -79,23 +79,18 @@ public class GitRepositoryBranch {
     }
 
     public GitRepositoryBranch duplicate(String branchName) {
-        LOG.info("Duplicate git repo for "+branchName);
-       
+               
         try {
 
             // Duplicate current dir
             File tmpDestinationDirectory =  Files.createTempDirectory("tmpgit").toFile();
+            LOG.info("Duplicate git repo for "+branchName+" on "+tmpDestinationDirectory.getAbsolutePath());
             FileUtils.copyDirectory(destinationDirectory, tmpDestinationDirectory);
 
             //Change to new branch
             Git tmpGit = Git.open(tmpDestinationDirectory);
-            //tmpGit.checkout().setName(branchName).call();
-            tmpGit.checkout().
-            setCreateBranch(true).
-            setName(branchName).
-            setUpstreamMode(SetupUpstreamMode.TRACK).
-            setStartPoint(branchName).
-            call();            
+            tmpGit.checkout().setName(branchName).call();
+
             return new GitRepositoryBranch(tmpDestinationDirectory, tmpGit, gitConf);
         } catch (IOException | GitAPIException e) {
             LOG.error(e);
