@@ -67,7 +67,7 @@ public class GitRepository {
 
     private boolean containsBranch(String branchName) throws GitAPIException {
         for (Ref branch : getInitialGit().branchList().setListMode(ListMode.ALL).call()) {
-            LOG.info("Branch : " + branch.getName());
+            LOG.debug("Branch : " + branch.getName());
             if (branch.getName().endsWith("/" + branchName)) {
 
                 return true;
@@ -78,7 +78,7 @@ public class GitRepository {
 
     private boolean containsTag(String tagName) throws GitAPIException {
         for (Ref tag : getInitialGit().tagList().call()) {
-            LOG.info("Tag : " + tag.getName());
+            LOG.debug("Tag : " + tag.getName());
             if (tag.getName().endsWith("/" + tagName)) {
 
                 return true;
@@ -112,20 +112,19 @@ public class GitRepository {
                 file = gitRepositoryBranch.getDestinationDirectory();
             } else {
                 LOG.info("Branch " + branchName+" is not cloned");
-                String name;
+                String branchType;
                 if (containsBranch(branchName)) {
                     // BRANCH
-                    name = "refs/remotes/origin/" + branchName;
+                    branchType = "refs/remotes/origin/";
                     
                 }else if (containsTag(branchName)) {
                     // TAG
-                    name = "refs/tags/" + branchName;
+                    branchType = "refs/tags/" ;
                 } else {
                     throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
                 }
                 // First access to the brach
-                GitRepositoryBranch newBranchRepository = defaultGitRepositoryBranch.duplicate(name);
-                newBranchRepository.pull();
+                GitRepositoryBranch newBranchRepository = defaultGitRepositoryBranch.duplicate(branchName,branchType);
                 gitRepositoryBranches.put(branchName, newBranchRepository);
                 file = newBranchRepository.getDestinationDirectory();
             }

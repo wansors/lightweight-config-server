@@ -48,7 +48,6 @@ public class GitRepositoryBranch {
     }
 
     protected boolean shouldPull() {
-
         if (gitConf.refreshRate > 0 && System.currentTimeMillis() - this.lastRefresh < (gitConf.refreshRate * 1000)) {
             return false;
         }
@@ -65,8 +64,10 @@ public class GitRepositoryBranch {
         if (shouldPull()) {
             lastRefresh = System.currentTimeMillis();
             try {
-                git.pull().call();
-            } catch (GitAPIException e) {
+                LOG.info("Pulling repository");
+                Git.open(destinationDirectory).pull().call();
+            } catch (GitAPIException | IOException e) {
+                LOG.warn("pull ",e);
                 throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
             }
 
@@ -78,7 +79,7 @@ public class GitRepositoryBranch {
         return git;
     }
 
-    public GitRepositoryBranch duplicate(String branchName) {
+    public GitRepositoryBranch duplicate(String branchName,String type) {
                
         try {
 
@@ -89,7 +90,13 @@ public class GitRepositoryBranch {
 
             //Change to new branch
             Git tmpGit = Git.open(tmpDestinationDirectory);
-            tmpGit.checkout().setName(branchName).call();
+
+            tmpGit.pull();
+            if(!tmpGit.getRepository().getBranch().equals(branchName)){
+                LOG.info("Checking branch "+branchName);
+                tmpGit.checkout().setCreateBranch(true).setName(branchName).setStartPoint(type+branchName).call();
+            }
+            
 
             return new GitRepositoryBranch(tmpDestinationDirectory, tmpGit, gitConf);
         } catch (IOException | GitAPIException e) {
