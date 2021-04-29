@@ -8,6 +8,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 public class GitConfiguration {
     public String uri="";
+    public String username=null;
+    public String password=null;
 
     @ConfigProperty(name = "force-pull")
     public boolean forcePull=true;
@@ -25,7 +27,9 @@ public class GitConfiguration {
     @ConfigProperty(name = "searchPaths")
     public List<String> searchPaths=null;
 
-    
+    public boolean isAuthenticationEnabled(){
+        return password!=null;
+    }
 
  
 

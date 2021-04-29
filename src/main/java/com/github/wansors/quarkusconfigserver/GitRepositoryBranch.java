@@ -8,10 +8,12 @@ import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
 import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCodeEnum;
 import com.github.wansors.quarkusconfigserver.utils.FileUtils;
 
+import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jboss.logging.Logger;
 
 public class GitRepositoryBranch {
@@ -38,8 +40,14 @@ public class GitRepositoryBranch {
     public void init() throws IOException, InvalidRemoteException, TransportException, GitAPIException {
         if (branchFolder == null) {
             this.branchFolder = Files.createTempDirectory("tmpgit").toFile();
-            Git.cloneRepository().setDirectory(branchFolder).setCloneAllBranches(true)
-                    .setURI(gitConf.uri).call();
+            CloneCommand cloneCommand = Git.cloneRepository();
+            cloneCommand.setDirectory(branchFolder).setCloneAllBranches(true)
+                    .setURI(gitConf.uri);
+                    if(gitConf.isAuthenticationEnabled()){
+                        cloneCommand.setCredentialsProvider( new UsernamePasswordCredentialsProvider( gitConf.username, gitConf.password ) );
+                    }
+                    cloneCommand.call();
+
             lastRefresh = System.currentTimeMillis();
         }
     }
