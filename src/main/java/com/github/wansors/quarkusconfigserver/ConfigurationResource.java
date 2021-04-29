@@ -16,7 +16,7 @@ import com.github.wansors.quarkusconfigserver.utils.MapConverter;
 
 import org.jboss.logging.Logger;
 
-@Path("/config")
+@Path("/")
 @RequestScoped
 public class ConfigurationResource {
 
