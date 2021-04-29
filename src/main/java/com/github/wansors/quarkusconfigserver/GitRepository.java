@@ -45,7 +45,7 @@ public class GitRepository {
         }
     }
 
-    private Git getInitialGit() {
+    private Git getInitialGit() throws IOException {
         return gitRepositoryBranches.get(DEFAULT_KEY).getGit();
     }
 
@@ -57,7 +57,7 @@ public class GitRepository {
                 GitRepositoryBranch gitRepositoryBranch = new GitRepositoryBranch(gitConf);
                 gitRepositoryBranch.init();
                 gitRepositoryBranches.put(DEFAULT_KEY, gitRepositoryBranch);
-                LOG.info("Storing repository on " + gitRepositoryBranch.getDestinationDirectory().getAbsolutePath());
+                LOG.info("Storing repository on " + gitRepositoryBranch.getBranchFolder().getAbsolutePath());
             } catch (IOException | GitAPIException e) {
                 LOG.warn("Unable to clone repository " + gitConf.uri, e);
             }
@@ -65,29 +65,31 @@ public class GitRepository {
 
     }
 
-    private boolean containsBranch(String branchName) throws GitAPIException {
-        for (Ref branch : getInitialGit().branchList().setListMode(ListMode.ALL).call()) {
-            LOG.debug("Branch : " + branch.getName());
-            if (branch.getName().endsWith("/" + branchName)) {
-
-                return true;
+    private boolean containsBranch(String branchName) throws GitAPIException, IOException {
+        try (Git git = getInitialGit()) {
+            for (Ref branch : git.branchList().setListMode(ListMode.ALL).call()) {
+                LOG.debug("Branch : " + branch.getName());
+                if (branch.getName().endsWith("/" + branchName)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    private boolean containsTag(String tagName) throws GitAPIException {
-        for (Ref tag : getInitialGit().tagList().call()) {
-            LOG.debug("Tag : " + tag.getName());
-            if (tag.getName().endsWith("/" + tagName)) {
-
-                return true;
+    private boolean containsTag(String tagName) throws GitAPIException, IOException {
+        try (Git git = getInitialGit()) {
+            for (Ref tag : git.tagList().call()) {
+                LOG.debug("Tag : " + tag.getName());
+                if (tag.getName().endsWith("/" + tagName)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    private File getBranch(String branchName) {        
+    private File getBranch(String branchName) {
         // Pull changes if needed
         GitRepositoryBranch defaultGitRepositoryBranch = gitRepositoryBranches.get(DEFAULT_KEY);
         defaultGitRepositoryBranch.pull();
@@ -95,7 +97,7 @@ public class GitRepository {
         if (branchName == null) {
             LOG.info("Requesting empty branch, returning default");
             // Return default branch
-            return defaultGitRepositoryBranch.getDestinationDirectory();
+            return defaultGitRepositoryBranch.getBranchFolder();
         }
 
         File file = null;
@@ -103,33 +105,33 @@ public class GitRepository {
         try {
 
             if (gitRepositoryBranches.containsKey(branchName)) {
-                LOG.info("Branch " + branchName+" is already cloned");
+                LOG.info("Branch " + branchName + " is already cloned");
                 // Branch has already been downloaded
                 GitRepositoryBranch gitRepositoryBranch = gitRepositoryBranches.get(branchName);
                 // Pull latest changes
                 gitRepositoryBranch.pull();
                 // Ya hemos accedido a esta rama con anterioridad
-                file = gitRepositoryBranch.getDestinationDirectory();
+                file = gitRepositoryBranch.getBranchFolder();
             } else {
-                LOG.info("Branch " + branchName+" is not cloned");
+                LOG.info("Branch " + branchName + " is not cloned");
                 String branchType;
                 if (containsBranch(branchName)) {
                     // BRANCH
                     branchType = "refs/remotes/origin/";
-                    
-                }else if (containsTag(branchName)) {
+
+                } else if (containsTag(branchName)) {
                     // TAG
-                    branchType = "refs/tags/" ;
+                    branchType = "refs/tags/";
                 } else {
                     throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
                 }
                 // First access to the brach
-                GitRepositoryBranch newBranchRepository = defaultGitRepositoryBranch.duplicate(branchName,branchType);
+                GitRepositoryBranch newBranchRepository = defaultGitRepositoryBranch.duplicate(branchName, branchType);
                 gitRepositoryBranches.put(branchName, newBranchRepository);
-                file = newBranchRepository.getDestinationDirectory();
+                file = newBranchRepository.getBranchFolder();
             }
 
-        } catch (GitAPIException e) {
+        } catch (GitAPIException | IOException e) {
             // Label does not exist
             throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
         }
@@ -170,7 +172,7 @@ public class GitRepository {
         // Para los tipo C y D miramos si existen en la raiz o en searchPaths si no es
         // nulo
         for (ConfigurationFileResource file : result) {
-            LOG.info("CONF: " + file.getUrl().getPath() + " priority: " + file.getOrdinal());
+            LOG.debug("CONF: " + file.getUrl().getPath() + " priority: " + file.getOrdinal());
         }
 
         return result;
@@ -179,7 +181,7 @@ public class GitRepository {
     private void addConfigurationFileResource(File dir, List<ConfigurationFileResource> list, String application,
             String profile, String extension, int priority, Boolean searchPath) {
         String fileName = generateFilename(application, profile, extension);
-        LOG.info("CONF: " + dir + "\\" + fileName);
+        LOG.debug("CONF: " + dir + "\\" + fileName);
         File file = new File(dir, fileName);
         try {
             if (file.exists()) {

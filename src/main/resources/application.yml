@@ -9,7 +9,7 @@ quarkusconfigserver:
           refresh-rate: 15
           force-pull: false
         - uri: https://github.com/wansors/spring-cloud-config-samples
-          refresh-rate: 10
+          refresh-rate: 300
           force-pull: true
           pattern: 'labels-*'
           searchPaths:

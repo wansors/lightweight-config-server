@@ -9,7 +9,6 @@ import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCodeEnum;
 import com.github.wansors.quarkusconfigserver.utils.FileUtils;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -23,9 +22,7 @@ public class GitRepositoryBranch {
     private long lastRefresh = 0;
 
     // Internal values
-    private File destinationDirectory;
-
-    private Git git;
+    private File branchFolder;
 
     private GitConfiguration gitConf;
 
@@ -33,17 +30,17 @@ public class GitRepositoryBranch {
         this.gitConf = gitConf;
     }
 
-    public GitRepositoryBranch(File destinationDirectory, Git git, GitConfiguration gitConf) {
-        this.destinationDirectory = destinationDirectory;
+    public GitRepositoryBranch(File branchFolder, GitConfiguration gitConf) {
+        this.branchFolder = branchFolder;
         this.gitConf = gitConf;
-        this.git = git;
     }
 
     public void init() throws IOException, InvalidRemoteException, TransportException, GitAPIException {
-        if (destinationDirectory == null) {
-            this.destinationDirectory = Files.createTempDirectory("tmpgit").toFile();
-            this.git = Git.cloneRepository().setDirectory(destinationDirectory).setCloneAllBranches(true)
+        if (branchFolder == null) {
+            this.branchFolder = Files.createTempDirectory("tmpgit").toFile();
+            Git.cloneRepository().setDirectory(branchFolder).setCloneAllBranches(true)
                     .setURI(gitConf.uri).call();
+            lastRefresh = System.currentTimeMillis();
         }
     }
 
@@ -55,17 +52,17 @@ public class GitRepositoryBranch {
         return true;
     }
 
-    public File getDestinationDirectory() {
-        return destinationDirectory;
+    public File getBranchFolder() {
+        return branchFolder;
     }
 
     public void pull() {
 
         if (shouldPull()) {
             lastRefresh = System.currentTimeMillis();
-            try {
-                LOG.info("Pulling repository");
-                Git.open(destinationDirectory).pull().call();
+            LOG.info("Pulling repository");
+            try (Git git = Git.open(branchFolder)){
+                git.pull().call();
             } catch (GitAPIException | IOException e) {
                 LOG.warn("pull ",e);
                 throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
@@ -75,18 +72,18 @@ public class GitRepositoryBranch {
 
     }
 
-    public Git getGit() {
-        return git;
+    public Git getGit() throws IOException {
+        return Git.open(branchFolder);
     }
 
     public GitRepositoryBranch duplicate(String branchName,String type) {
-               
+        File tmpDestinationDirectory =null;
         try {
 
             // Duplicate current dir
-            File tmpDestinationDirectory =  Files.createTempDirectory("tmpgit").toFile();
+            tmpDestinationDirectory =  Files.createTempDirectory("tmpgit").toFile();
             LOG.info("Duplicate git repo for "+branchName+" on "+tmpDestinationDirectory.getAbsolutePath());
-            FileUtils.copyDirectory(destinationDirectory, tmpDestinationDirectory);
+            FileUtils.copyDirectory(branchFolder, tmpDestinationDirectory);
 
             //Change to new branch
             Git tmpGit = Git.open(tmpDestinationDirectory);
@@ -95,14 +92,13 @@ public class GitRepositoryBranch {
             if(!tmpGit.getRepository().getBranch().equals(branchName)){
                 LOG.info("Checking branch "+branchName);
                 tmpGit.checkout().setCreateBranch(true).setName(branchName).setStartPoint(type+branchName).call();
-            }
-            
-
-            return new GitRepositoryBranch(tmpDestinationDirectory, tmpGit, gitConf);
+                lastRefresh = System.currentTimeMillis();
+            }                        
         } catch (IOException | GitAPIException e) {
             LOG.error(e);
             throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
         }
+        return new GitRepositoryBranch(tmpDestinationDirectory, gitConf);
 
     }
 }

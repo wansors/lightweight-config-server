@@ -20,7 +20,6 @@ public class ConfigurationFileResource {
     }
 
     public ConfigurationFileResourceType getType() {
-        System.out.println(url);
         int i = url.getFile().lastIndexOf('.');
 
         if ("properties".equalsIgnoreCase(url.getFile().substring(i + 1))) {

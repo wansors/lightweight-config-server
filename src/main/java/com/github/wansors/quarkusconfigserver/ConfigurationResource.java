@@ -12,7 +12,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
 import com.github.wansors.quarkusconfigserver.utils.MapConverter;
 
 import org.jboss.logging.Logger;
