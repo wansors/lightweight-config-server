@@ -7,9 +7,9 @@ public class ResponseErrorJson {
     private Date timestamp=new Date();
     private int status=200;
     private String error;
-    private String message;
+    private String message="";
     private String path;
-    
+
     public Date getTimestamp() {
         return timestamp;
     }
