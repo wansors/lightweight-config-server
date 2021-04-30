@@ -70,7 +70,12 @@ public class GitRepositoryBranch {
             lastRefresh = System.currentTimeMillis();
             LOG.info("Pulling repository");
             try (Git git = Git.open(branchFolder)){
-                git.pull().call();
+                if(gitConf.isAuthenticationEnabled()){
+                    git.pull().setCredentialsProvider( new UsernamePasswordCredentialsProvider( gitConf.username, gitConf.password ) );
+                }else{
+                    git.pull().call();
+                }
+                
             } catch (GitAPIException | IOException e) {
                 LOG.warn("pull ",e);
                 throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
