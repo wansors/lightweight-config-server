@@ -50,7 +50,9 @@ public class GitRepositoryManager {
             }
 
             GitRepository repository=new GitRepository(gitConfiguration);
-            repositories.put(key, repository);
+            if(repository.isReady()){
+                repositories.put(key, repository);
+            }
         }
 
 
@@ -58,7 +60,7 @@ public class GitRepositoryManager {
     }
 
 
-    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) throws ApiWsException {
+    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) {
         //Find which repository should be used
         GitRepository repository = getGitRepository(application, profile);
         //Return files
@@ -92,8 +94,16 @@ public class GitRepositoryManager {
     }
 
 
-    public File getPlainTextFile(String label, String application, String profile, String path) throws ApiWsException {        
+    public File getPlainTextFile(String label, String application, String profile, String path) {        
         return getGitRepository(application, profile).getPlainTextFile( label, path);
+    }
+
+    /**
+     * Inform if repository manager is ready
+     * @return
+     */
+    public boolean isReady(){
+        return repositories!=null && repositories.size()== configResourceConfiguration.git.size();
     }
 
 }
