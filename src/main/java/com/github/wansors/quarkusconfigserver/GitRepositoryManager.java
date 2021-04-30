@@ -50,7 +50,9 @@ public class GitRepositoryManager {
             }
 
             GitRepository repository=new GitRepository(gitConfiguration);
-            repositories.put(key, repository);
+            if(repository.isReady()){
+                repositories.put(key, repository);
+            }
         }
 
 

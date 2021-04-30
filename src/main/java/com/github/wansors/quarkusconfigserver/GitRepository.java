@@ -237,4 +237,8 @@ public class GitRepository {
         return new File(Paths.get(branchDestinationDirectory.getAbsolutePath(), path).toString());
     }
 
+    public boolean isReady(){
+        return gitRepositoryBranches.size()!=0;
+    }
+
 }
