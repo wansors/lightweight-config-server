@@ -14,15 +14,13 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 # Benchmarks
 Comparison have done with hyness/spring-cloud-config-server
 
-docker run -it -p 8888:8888 \
-      -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/spring-cloud-samples/config-repo \
-      hyness/spring-cloud-config-server
+docker run -it -p 8883:8888 -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/spring-cloud-samples/config-repo hyness/spring-cloud-config-server
 
 
 docker stats
 
 ## Liveness Probe
-http://localhost:8080/q/health
+http://localhost:8888/q/health
 
 
 ## How supersonic is it?
@@ -56,12 +54,12 @@ If you want to learn more about building native executables, please consult http
 ## Native
 ./mvnw package -Pnative "-Dquarkus.native.container-build=true"
 docker build -f src/main/docker/Dockerfile.native -t quarkus/configserver .
-docker run -i --rm -p 8080:8080  --name quarkusconfigserver-native quarkus/configserver
+docker run -i --rm -p 8888:8888  --name quarkusconfigserver-native quarkus/configserver
 
 ## JVM
 ./mvnw clean package
 docker build -f src/main/docker/Dockerfile.jvm -t quarkus/configserver-jvm .
-docker run -i --rm -p 8081:8080 --name quarkusconfigserver-jvm quarkus/configserver-jvm
+docker run -i --rm -p 8881:8888 --name quarkusconfigserver-jvm quarkus/configserver-jvm
 
 
 

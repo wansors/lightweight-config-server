@@ -1,5 +1,9 @@
 ---
 quarkus:
+  smallrye-health:
+    root-path: /actuator/health
+  http:
+    port: 8888
   application:
     name: quarkusconfigserver
   log:
