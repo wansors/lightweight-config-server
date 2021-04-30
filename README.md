@@ -21,6 +21,10 @@ docker run -it -p 8888:8888 \
 
 docker stats
 
+## Liveness Probe
+http://localhost:8080/q/health
+
+
 ## How supersonic is it?
 
 Benchmark | JVM | Native | spring-cloud-config-server 

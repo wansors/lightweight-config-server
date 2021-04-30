@@ -96,4 +96,12 @@ public class GitRepositoryManager {
         return getGitRepository(application, profile).getPlainTextFile( label, path);
     }
 
+    /**
+     * Inform if repository manager is ready
+     * @return
+     */
+    public boolean isReady(){
+        return repositories!=null && repositories.size()== configResourceConfiguration.git.size();
+    }
+
 }
