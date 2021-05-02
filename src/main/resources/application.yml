@@ -16,11 +16,13 @@ quarkusconfigserver:
     repository:
       git:
         - uri: https://github.com/spring-cloud-samples/config-repo.git
+          enabled: true
           refresh-rate: 15
           force-pull: false
         - uri: https://bitbucket.org/carritustechnology/tol-labels.git
+          enabled: true
           refresh-rate: 300
-          force-pull: true
+          force-pull: false
           pattern: 'labels-*'
           searchPaths:
             - base/backoffice-ws
