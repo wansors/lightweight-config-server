@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.github.wansors.quarkusconfigserver.rest.AuthenticationNeeded;
 import com.github.wansors.quarkusconfigserver.utils.MapConverter;
 
 import org.jboss.logging.Logger;
@@ -70,6 +71,7 @@ public class ConfigurationResource {
     }
 
 
+    @AuthenticationNeeded
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Path("/{application}/{profile}/{label}/{filePath:.*}")

@@ -9,6 +9,10 @@ quarkus:
   log:
     level: INFO
 quarkusconfigserver:
+    security:
+        enabled: true
+        user: user
+        password: password
     repository:
       git:
         - uri: https://github.com/spring-cloud-samples/config-repo.git
