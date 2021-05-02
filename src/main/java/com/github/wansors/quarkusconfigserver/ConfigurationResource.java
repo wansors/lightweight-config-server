@@ -33,6 +33,7 @@ public class ConfigurationResource {
      * /{application}/{profile}[/{label}]
      * 
      */
+    @AuthenticationNeeded
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{label}/{application}-{profile}.json")
@@ -43,6 +44,7 @@ public class ConfigurationResource {
         return Response.ok(MapConverter.convert(configuration)).build();
     }
 
+    @AuthenticationNeeded
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{application}-{profile}.json")
@@ -51,6 +53,7 @@ public class ConfigurationResource {
         return standardLabelApplicationProfileJson(null, application, profile);
     }
 
+    @AuthenticationNeeded
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{label}/{application}-{profile}.properties")
@@ -62,6 +65,7 @@ public class ConfigurationResource {
         return Response.ok(MapConverter.convertToPropertiesFormatString(configuration)).build();
     }
 
+    @AuthenticationNeeded
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{application}-{profile}.properties")
