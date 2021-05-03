@@ -150,15 +150,16 @@ public class GitRepository {
         addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, 1, false);
         addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, YAML_EXTENSION, 2, false);
 
-        // B) application-{profile}.(properties(3).yml(4))
-        // (General properties that apply to all applications and profile-specific )
-        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 3, false);
-        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 4, false);
-
-        // C) {application}.(properties(5)/yml(6))
+        // B) {application}.(properties(3)/yml(4))
         // (Specific properties that apply to an application-specific and all profiles)
-        addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, 5, true);
-        addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, 6, true);
+        addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, 3, true);
+        addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, 4, true);
+
+        // C) application-{profile}.(properties(5).yml(6))
+        // (General properties that apply to all applications and profile-specific )
+        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 5, false);
+        addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 6, false);
+
 
         // D) {application}-{profile}.(properties(7)/yml(8))
         // (Specific properties that apply to an application-specific and a
