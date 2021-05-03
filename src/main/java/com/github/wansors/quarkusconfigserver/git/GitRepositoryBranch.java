@@ -1,4 +1,4 @@
-package com.github.wansors.quarkusconfigserver;
+package com.github.wansors.quarkusconfigserver.git;
 
 import java.io.File;
 import java.io.IOException;

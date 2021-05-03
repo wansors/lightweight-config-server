@@ -1,4 +1,4 @@
-package com.github.wansors.quarkusconfigserver;
+package com.github.wansors.quarkusconfigserver.cloudconfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;

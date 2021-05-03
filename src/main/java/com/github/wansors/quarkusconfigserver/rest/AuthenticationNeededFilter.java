@@ -10,7 +10,7 @@ import javax.ws.rs.ext.Provider;
 
 import org.jboss.logging.Logger;
 
-import com.github.wansors.quarkusconfigserver.GitRepositoryBranch;
+import com.github.wansors.quarkusconfigserver.git.GitRepositoryBranch;
 
 import io.quarkus.arc.config.ConfigPrefix;
 

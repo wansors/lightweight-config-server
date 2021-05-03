@@ -11,7 +11,7 @@ import java.util.Map;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
+import com.github.wansors.quarkusconfigserver.cloudconfig.SpringCloudConfigResponse;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.spi.ConfigBuilder;

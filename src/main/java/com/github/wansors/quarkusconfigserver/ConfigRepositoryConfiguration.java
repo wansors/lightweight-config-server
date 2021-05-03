@@ -2,6 +2,8 @@ package com.github.wansors.quarkusconfigserver;
 
 import java.util.List;
 
+import com.github.wansors.quarkusconfigserver.git.GitConfiguration;
+
 import io.quarkus.arc.config.ConfigProperties;
 
 @ConfigProperties

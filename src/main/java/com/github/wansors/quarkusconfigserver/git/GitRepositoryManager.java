@@ -1,4 +1,4 @@
-package com.github.wansors.quarkusconfigserver;
+package com.github.wansors.quarkusconfigserver.git;
 
 import java.io.File;
 import java.util.HashMap;
@@ -9,7 +9,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
+import com.github.wansors.quarkusconfigserver.ConfigRepositoryConfiguration;
+import com.github.wansors.quarkusconfigserver.ConfigurationFileResource;
+import com.github.wansors.quarkusconfigserver.ConfigurationRepository;
 
 import org.jboss.logging.Logger;
 
