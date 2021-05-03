@@ -77,6 +77,18 @@ public class ConfigurationResource {
 
     @AuthenticationNeeded
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{application}/{profile}/{label}")
+    public Response getSpringConfigFormat(@PathParam("label") String label,
+    @PathParam("application") String application, @PathParam("profile") String profile) {
+        LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
+        + " Spring cloud config format");        
+        return Response.ok(service.getSpringConfigResponse(label, application, profile))
+        .build();
+    }
+
+    @AuthenticationNeeded
+    @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Path("/{application}/{profile}/{label}/{filePath:.*}")
     public Response getPlainTextFile(@PathParam("label") String label,
