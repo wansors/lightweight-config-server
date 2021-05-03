@@ -46,13 +46,13 @@ public class GitRepository {
 
 	private void initRepository() {
 		if (!gitRepositoryBranches.containsKey(DEFAULT_KEY)) {
-			LOG.info("Initializing Repository for " + gitConf.uri);
+			LOG.debug("Initializing Repository for " + gitConf.uri);
 
 			try {
 				GitRepositoryBranch gitRepositoryBranch = new GitRepositoryBranch(gitConf);
 				gitRepositoryBranch.init();
 				gitRepositoryBranches.put(DEFAULT_KEY, gitRepositoryBranch);
-				LOG.info("Storing repository on " + gitRepositoryBranch.getBranchFolder().getAbsolutePath());
+				LOG.debug("Storing repository on " + gitRepositoryBranch.getBranchFolder().getAbsolutePath());
 			} catch (IOException | GitAPIException e) {
 				LOG.warn("Unable to clone repository " + gitConf.uri, e);
 			}
@@ -90,7 +90,7 @@ public class GitRepository {
 		defaultGitRepositoryBranch.pull();
 
 		if (branchName == null) {
-			LOG.info("Requesting empty branch, returning default");
+			LOG.debug("Requesting empty branch, returning default");
 			// Return default branch
 			return defaultGitRepositoryBranch.getBranchFolder();
 		}
@@ -100,7 +100,7 @@ public class GitRepository {
 		try {
 
 			if (gitRepositoryBranches.containsKey(branchName)) {
-				LOG.info("Branch " + branchName + " is already cloned");
+				LOG.debug("Branch " + branchName + " is already cloned");
 				// Branch has already been downloaded
 				GitRepositoryBranch gitRepositoryBranch = gitRepositoryBranches.get(branchName);
 				// Pull latest changes
@@ -108,7 +108,7 @@ public class GitRepository {
 				// Ya hemos accedido a esta rama con anterioridad
 				file = gitRepositoryBranch.getBranchFolder();
 			} else {
-				LOG.info("Branch " + branchName + " is not cloned");
+				LOG.debug("Branch " + branchName + " is not cloned");
 				String branchType;
 				if (containsBranch(branchName)) {
 					// BRANCH
@@ -222,7 +222,7 @@ public class GitRepository {
 	}
 
 	public File getPlainTextFile(String label, String path) {
-		LOG.info("Requesting plain text file " + path + " for label " + label);
+		LOG.debug("Requesting plain text file " + path + " for label " + label);
 		File branchDestinationDirectory = getBranch(label);
 		File file = new File(Paths.get(branchDestinationDirectory.getAbsolutePath(), path).toString());
 

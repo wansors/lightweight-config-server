@@ -37,7 +37,7 @@ public class GitRepositoryManager {
     private Map<String, GitRepository> repositories;
 
     void onStart(@Observes StartupEvent ev) {
-        LOG.info("The application is starting...");
+        LOG.debug("The application is starting...");
         repositories = new HashMap<>();
 
         // Init all repos if needed (cloneOnStart==true)
@@ -84,7 +84,7 @@ public class GitRepositoryManager {
         for (Map.Entry<String, GitRepository> entry : repositories.entrySet()) {
             String regexKey = entry.getKey().replace("*", ".*");
             if ((application + "-" + profile).matches(regexKey)) {
-                LOG.info("MATCH KEY: " + entry.getKey());
+                LOG.debug("MATCH KEY: " + entry.getKey());
                 return entry.getValue();
             }
         }

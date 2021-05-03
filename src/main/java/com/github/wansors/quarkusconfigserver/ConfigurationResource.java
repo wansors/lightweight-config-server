@@ -39,7 +39,7 @@ public class ConfigurationResource {
     @Path("/{label}/{application}-{profile}.json")
     public Response standardLabelApplicationProfileJson(@PathParam("label") String label,
             @PathParam("application") String application, @PathParam("profile") String profile)  {
-        LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label + " . JSON");
+        LOG.debug("Obtaining config for app: " + application + " profile: " + profile + " label: " + label + " . JSON");
         Map<String, Object> configuration = service.getConfiguration(application, profile, label);
         return Response.ok(MapConverter.convert(configuration)).build();
     }
@@ -59,7 +59,7 @@ public class ConfigurationResource {
     @Path("/{label}/{application}-{profile}.properties")
     public Response standardLabelApplicationProfileProperties(@PathParam("label") String label,
             @PathParam("application") String application, @PathParam("profile") String profile)  {
-        LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
+        LOG.debug("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
                 + " . PROPERTIES");
         Map<String, Object> configuration = service.getConfiguration(application, profile, label);
         return Response.ok(MapConverter.convertToPropertiesFormatString(configuration)).build();
@@ -81,7 +81,7 @@ public class ConfigurationResource {
     @Path("/{application}/{profile}/{label}")
     public Response getSpringConfigFormat(@PathParam("label") String label,
     @PathParam("application") String application, @PathParam("profile") String profile) {
-        LOG.info("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
+        LOG.debug("Obtaining config for app: " + application + " profile: " + profile + " label: " + label
         + " Spring cloud config format");        
         return Response.ok(service.getSpringConfigResponse(label, application, profile))
         .build();
@@ -93,7 +93,7 @@ public class ConfigurationResource {
     @Path("/{application}/{profile}/{label}/{filePath:.*}")
     public Response getPlainTextFile(@PathParam("label") String label,
     @PathParam("application") String application, @PathParam("profile") String profile, @PathParam("filePath") String filePath) {
-        LOG.info("Requesting plain text file "+filePath);
+        LOG.debug("Requesting plain text file "+filePath);
         File file=service.getPlainTextFile(label, application, profile,filePath);
         return Response.ok(file, MediaType.APPLICATION_OCTET_STREAM)
         .header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"" ) //optional

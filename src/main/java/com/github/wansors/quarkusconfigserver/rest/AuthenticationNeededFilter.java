@@ -43,7 +43,7 @@ public class AuthenticationNeededFilter implements ContainerRequestFilter {
 
 		// Check if the HTTP Authorization header is present and formatted correctly
 		if ((authorizationHeader == null || !authorizationHeader.startsWith("Basic "))) {
-			LOG.info("Invalid authorizationHeader : " + authorizationHeader);
+			LOG.debug("Invalid authorizationHeader : " + authorizationHeader);
 			throw new NotAuthorizedException("Authorization header must be provided");
 		}
 
@@ -60,7 +60,7 @@ public class AuthenticationNeededFilter implements ContainerRequestFilter {
 			LOG.debug("Valid authentication");
 
 		} else {
-			LOG.info("Invalid authentication: " + token);
+			LOG.debug("Invalid authentication: " + token);
 			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 		}
 
