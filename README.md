@@ -67,14 +67,10 @@ docker run -i --rm -p 8881:8888 --name quarkusconfigserver-jvm quarkus/configser
 
 With git repositories, resources with file names in application* (application.properties, application.yml, application-*.properties, and so on) are shared between all client applications. You can use resources with these file names to configure global defaults and have them be overridden by application-specific files as necessary.
 
-// application.(properties/yml), (General properties that apply to all applications and all profiles)
-// application-{profile}.(properties/yml) (General properties that apply to all applications and profile-specific )
-// {application}.(properties/yml) (Specific properties that apply to an  application-specific and all profiles)
-// {application}-{profile}.(properties/yml) (Specific properties that apply to an application-specific  and a profile-specific )
-
-TODO revisar labels
-
-
+* application.(properties/yml), (General properties that apply to all applications and all profiles)
+* {application}.(properties/yml) (Specific properties that apply to an  application-specific and all profiles)
+* application-{profile}.(properties/yml) (General properties that apply to all applications and profile-specific )
+* {application}-{profile}.(properties/yml) (Specific properties that apply to an application-specific  and a profile-specific )
 
 
 
