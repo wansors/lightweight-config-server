@@ -14,7 +14,7 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 # Benchmarks
 Comparison have done with hyness/spring-cloud-config-server
 
-docker run -it -p 8883:8888 -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/spring-cloud-samples/config-repo hyness/spring-cloud-config-server
+docker run -it -p 8883:8888 -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/wansors/spring-cloud-config-samples hyness/spring-cloud-config-server
 
 
 docker stats
