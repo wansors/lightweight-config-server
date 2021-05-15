@@ -1,4 +1,4 @@
-package com.github.wansors.quarkusconfigserver;
+package com.github.wansors.quarkusconfigserver.git;
 
 import java.io.File;
 import java.util.HashMap;
@@ -9,7 +9,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
+import com.github.wansors.quarkusconfigserver.ConfigRepositoryConfiguration;
+import com.github.wansors.quarkusconfigserver.ConfigurationFileResource;
+import com.github.wansors.quarkusconfigserver.ConfigurationRepository;
 
 import org.jboss.logging.Logger;
 
@@ -35,33 +37,34 @@ public class GitRepositoryManager {
     private Map<String, GitRepository> repositories;
 
     void onStart(@Observes StartupEvent ev) {
-        LOG.info("The application is starting...");
-        repositories=new HashMap<>();
+        LOG.debug("The application is starting...");
+        repositories = new HashMap<>();
 
-        //  Init all repos if needed (cloneOnStart==true)
+        // Init all repos if needed (cloneOnStart==true)
         // recorrer los objetos de configuracion
         // Agregar dichos repositories al mapa repositories
-        for(GitConfiguration gitConfiguration: configResourceConfiguration.git){            
-            String key;
-            if(null==gitConfiguration.pattern){
-                key="*";
-            }else{
-                key=gitConfiguration.pattern;
+        for (GitConfiguration gitConfiguration : configResourceConfiguration.git) {
+            if (gitConfiguration.enabled) {
+                String key;
+                if (null == gitConfiguration.pattern) {
+                    key = "*";
+                } else {
+                    key = gitConfiguration.pattern;
+                }
+
+                GitRepository repository = new GitRepository(gitConfiguration);
+                if (repository.isReady()) {
+                    repositories.put(key, repository);
+                }
             }
-
-            GitRepository repository=new GitRepository(gitConfiguration);
-            repositories.put(key, repository);
         }
-
-
 
     }
 
-
     public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) {
-        //Find which repository should be used
+        // Find which repository should be used
         GitRepository repository = getGitRepository(application, profile);
-        //Return files
+        // Return files
         return repository.getFiles(application, profile, label);
     }
 
@@ -81,7 +84,7 @@ public class GitRepositoryManager {
         for (Map.Entry<String, GitRepository> entry : repositories.entrySet()) {
             String regexKey = entry.getKey().replace("*", ".*");
             if ((application + "-" + profile).matches(regexKey)) {
-                LOG.info("MATCH KEY: " + entry.getKey());
+                LOG.debug("MATCH KEY: " + entry.getKey());
                 return entry.getValue();
             }
         }
@@ -91,9 +94,17 @@ public class GitRepositoryManager {
         // return repositories.get(repositories.entrySet().iterator().next().getKey());
     }
 
+    public File getPlainTextFile(String label, String application, String profile, String path) {
+        return getGitRepository(application, profile).getPlainTextFile(label, path);
+    }
 
-    public File getPlainTextFile(String label, String application, String profile, String path) {        
-        return getGitRepository(application, profile).getPlainTextFile( label, path);
+    /**
+     * Inform if repository manager is ready
+     * 
+     * @return
+     */
+    public boolean isReady() {
+        return repositories != null && repositories.size() == configResourceConfiguration.enabledRepositories();
     }
 
 }

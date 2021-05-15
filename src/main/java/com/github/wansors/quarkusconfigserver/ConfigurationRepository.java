@@ -6,6 +6,8 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.github.wansors.quarkusconfigserver.git.GitRepositoryManager;
+
 
 @ApplicationScoped
 public class ConfigurationRepository {
