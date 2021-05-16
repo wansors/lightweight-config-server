@@ -66,7 +66,7 @@ public final class MapConverter {
         String stringValue = (String) value;
 
         if (stringValue.matches("^[+-]?[0-9]+$")) {
-            value = Integer.parseInt(stringValue);
+            value = Long.parseLong(stringValue);
         } else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+$")) {
             value = Float.parseFloat(stringValue);
         } else if (stringValue.matches("(?i:^(true|on|yes)$)")) {

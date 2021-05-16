@@ -66,7 +66,7 @@ public class ConfigurationService {
 
 	private ConfigSource createConfigSource(ConfigurationFileResource file) throws IOException {
 		if (file.getType() == ConfigurationFileResourceType.YAML) {
-			return new YamlConfigSource(file.getUrl(), file.getOrdinal());
+			return new SpringYamlConfigSource(file.getUrl(), file.getOrdinal());
 
 		} else if (file.getType() == ConfigurationFileResourceType.PROPERTIES) {
 			return new PropertiesConfigSource(file.getUrl(), file.getOrdinal());
