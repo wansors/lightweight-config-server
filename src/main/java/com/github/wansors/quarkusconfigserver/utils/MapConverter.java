@@ -28,6 +28,12 @@ public final class MapConverter {
         for (Map.Entry<String,Object> entry : map.entrySet()) {
             propertiesStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
         }
+
+        // delete last "\n" if not empty
+        if (propertiesStringBuilder.length() > 0) {
+            propertiesStringBuilder.setLength(propertiesStringBuilder.length() - 1);
+        }
+
         return propertiesStringBuilder.toString();
     }
 
