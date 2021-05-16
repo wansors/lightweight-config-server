@@ -1,4 +1,4 @@
-package com.github.wansors.quarkusconfigserver;
+package com.github.wansors.quarkusconfigserver.git;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,9 +68,14 @@ public class GitRepositoryBranch {
 
         if (shouldPull()) {
             lastRefresh = System.currentTimeMillis();
-            LOG.info("Pulling repository");
+            LOG.debug("Pulling repository");
             try (Git git = Git.open(branchFolder)){
-                git.pull().call();
+                if(gitConf.isAuthenticationEnabled()){
+                    git.pull().setCredentialsProvider( new UsernamePasswordCredentialsProvider( gitConf.username, gitConf.password ) );
+                }else{
+                    git.pull().call();
+                }
+                
             } catch (GitAPIException | IOException e) {
                 LOG.warn("pull ",e);
                 throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
@@ -90,7 +95,7 @@ public class GitRepositoryBranch {
 
             // Duplicate current dir
             tmpDestinationDirectory =  Files.createTempDirectory("tmpgit").toFile();
-            LOG.info("Duplicate git repo for "+branchName+" on "+tmpDestinationDirectory.getAbsolutePath());
+            LOG.debug("Duplicate git repo for "+branchName+" on "+tmpDestinationDirectory.getAbsolutePath());
             FileUtils.copyDirectory(branchFolder, tmpDestinationDirectory);
 
             //Change to new branch
@@ -98,7 +103,7 @@ public class GitRepositoryBranch {
 
             tmpGit.pull();
             if(!tmpGit.getRepository().getBranch().equals(branchName)){
-                LOG.info("Checking branch "+branchName);
+                LOG.debug("Checking branch "+branchName);
                 tmpGit.checkout().setCreateBranch(true).setName(branchName).setStartPoint(type+branchName).call();
                 lastRefresh = System.currentTimeMillis();
             }                        
