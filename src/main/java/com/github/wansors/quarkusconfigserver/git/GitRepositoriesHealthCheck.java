@@ -16,6 +16,6 @@ public class GitRepositoriesHealthCheck implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
-        return HealthCheckResponse.named("GitRepositoryManager").state(gitRepositoryManager.isReady()).build();
+        return HealthCheckResponse.named("GitRepositoryManager").status(gitRepositoryManager.isReady()).build();
     }
 }

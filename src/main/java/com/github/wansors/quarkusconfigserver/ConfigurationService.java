@@ -54,7 +54,7 @@ public class ConfigurationService {
 				LOG.warn("Unable to load " + file.getUrl(), e);
 			}
 		}
-		Config config = builder.withSources(sources.toArray(new ConfigSource[sources.size()])).build();
+		Config config = builder.withSources(sources.toArray(new ConfigSource[sources.size()])).withConverter(String.class, 101,new EmptyStringConverter()).build();
 
 		// Generate Map with all configs
 		Map<String, Object> map = new HashMap<>();
