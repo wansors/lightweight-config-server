@@ -30,7 +30,7 @@ public final class MapConverter {
 
         StringBuilder propertiesStringBuilder = new StringBuilder();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            propertiesStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+            propertiesStringBuilder.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
         }
 
         // delete last "\n" if not empty
@@ -78,8 +78,10 @@ public final class MapConverter {
                     listT = new ArrayList<>();
                     map.put(listName, listT);
                 }
+                System.out.print(" "+key+" "+itemPos);
                 listT.add(itemPos, convertValue(value));
             } else {
+                System.out.print(" "+key+" "+pos);
                 // new list on list
                 listT = (List<Object>) origList.get(pos);
                 if (listT == null) {
