@@ -6,25 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public final class MapConverter {
 
 	private MapConverter() {
-	}
-
-	public static Map<String, Object> convert(Map<String, String> map) {
-
-		Set<String> keys = map.keySet();
-		List<String> array = new ArrayList<>(keys);
-		Collections.sort(array);
-
-		Map<String, Object> mapFinal = new HashMap<>();
-		for (String key : array) {
-			Object value = map.remove(key);
-			MapConverter.mapper(key, value, mapFinal, null, 0);
-		}
-
-		return mapFinal;
 	}
 
 	public static String convertToPropertiesFormatString(Map<String, String> map) {
@@ -42,6 +28,21 @@ public final class MapConverter {
 		return propertiesStringBuilder.toString();
 	}
 
+	public static Map<String, Object> expandMap(Map<String, String> map) {
+
+		Set<String> keys = map.keySet();
+		List<String> array = new ArrayList<>(keys);
+		Collections.sort(array);
+
+		Map<String, Object> mapFinal = new HashMap<>();
+		for (String key : array) {
+			String value = map.get(key);
+			MapConverter.mapper(key, value, mapFinal);
+		}
+
+		return mapFinal;
+	}
+
 	/**
 	 * Recursive method for sorting values
 	 *
@@ -49,49 +50,15 @@ public final class MapConverter {
 	 * @param value
 	 * @param map
 	 */
-	private static void mapper(String key, Object value, Map<String, Object> map, List<Object> origList, int pos) {
+	private static void mapper(String key, String value, Map<String, Object> map) {
 
 		if (!key.contains(".") && !isList(key)) {
-			if (map != null) {
-				map.put(key, convertValue(value));
-			} else {
-				Map<String, Object> mapt;
-				if (origList.size() > pos) {
-					mapt = (Map<String, Object>) origList.get(pos);
-				} else {
-					// New map on list
-					mapt = new HashMap<>();
-					origList.add(pos, mapt);
-				}
-				mapt.put(key, convertValue(value));
-			}
+			// Last leaf from a map
+			map.put(key, convertValue(value));
 			return;
 		} else if (!key.contains(".") && isList(key)) {
 			// Last leaf but is an array
-			String listName = key.substring(0, key.lastIndexOf("["));
-			int itemPos = Integer.valueOf(key.substring(key.lastIndexOf("[") + 1, key.length() - 1));
-			List<Object> listT = null;
-			if (map != null) {
-				// Add it to map
-				listT = (List<Object>) map.get(listName);
-				if (listT == null) {
-					// new list on map
-					listT = new ArrayList<>();
-					map.put(listName, listT);
-				}
-				System.out.print(" " + key + " " + itemPos);
-				listT.add(itemPos, convertValue(value));
-			} else {
-				System.out.print(" " + key + " " + pos);
-				// new list on list
-				listT = (List<Object>) origList.get(pos);
-				if (listT == null) {
-					// new list on map
-					listT = new ArrayList<>();
-					origList.add(pos, listT);
-				}
-				listT.add(itemPos, convertValue(value));
-			}
+			keyToArray(key, value, map);
 			return;
 		}
 
@@ -99,47 +66,20 @@ public final class MapConverter {
 		String[] parts = key.split("\\.", 2);
 
 		if (isList(parts[0])) {
-
-			String listName = parts[0].substring(0, parts[0].lastIndexOf("["));
-			int itemPos = Integer.valueOf(parts[0].substring(parts[0].lastIndexOf("[") + 1, parts[0].length() - 1));
-
-			// we need to put in a list
-			List<Object> list;
-			if (map != null) {
-				list = (List<Object>) map.get(listName);
-				if (list == null) {
-					list = new ArrayList<>();
-					map.put(listName, list);
-				}
-			} else {
-				if (origList.size() > pos) {
-					list = (List<Object>) origList.get(pos);
-				} else {
-					list = new ArrayList<>();
-					origList.add(pos, list);
-				}
-			}
-
-			mapper(parts[1], value, null, list, itemPos);
+			// Get map from array key
+			Map<String, Object> newCurrentLevelMap = getMapFromArrayKey(parts[0], map);
+			// Continue mapping
+			mapper(parts[1], value, newCurrentLevelMap);
 		} else {
 
 			Map<String, Object> newMap;
-			if (map != null) {
-				newMap = (Map<String, Object>) map.get(parts[0]);
-				if (newMap == null) {
-					newMap = new HashMap<>();
-					map.put(parts[0], newMap);
-				}
-			} else {
-				newMap = (Map<String, Object>) origList.get(pos);
-				if (newMap == null) {
-					newMap = new HashMap<>();
-					origList.add(pos, newMap);
-				}
-
+			newMap = (Map<String, Object>) map.get(parts[0]);
+			if (newMap == null) {
+				newMap = new HashMap<>();
+				map.put(parts[0], newMap);
 			}
 
-			MapConverter.mapper(parts[1], value, newMap, null, 0);
+			MapConverter.mapper(parts[1], value, newMap);
 		}
 
 	}
@@ -148,13 +88,66 @@ public final class MapConverter {
 		return key.matches(".*\\[\\d+\\]$");
 	}
 
-	private static Object convertValue(Object value) {
+	private static String cleanArrayKey(String key) {
+		return key.substring(0, key.indexOf("["));
+	}
 
-		if (!value.getClass().equals(String.class)) {
-			return value;
+	private static int[] getArrayIndexes(String key, String cleanKey) {
+		return Stream.of(key.replace(cleanKey, "").replace("[", "").split("]")).mapToInt(Integer::parseInt).toArray();
+	}
+
+	private static List<Object> getArrayLastList(Map<String, Object> currentLevelMap, String cleanKey, int[] items) {
+		List<Object> parent = (List<Object>) currentLevelMap.get(cleanKey);
+		if (parent == null) {
+			parent = new ArrayList<>();
+			currentLevelMap.put(cleanKey, parent);
+		}
+		for (int x = 0; x < (items.length - 1); x++) {
+			int currentPos = items[x];
+			List<Object> currentList = null;
+			if (parent.size() > currentPos) {
+				currentList = (List<Object>) parent.get(currentPos);
+			}
+			if (currentList == null) {
+				currentList = new ArrayList<>();
+				parent.add(currentPos, currentList);
+			}
+			parent = currentList;
+		}
+		return parent;
+	}
+
+	private static void keyToArray(String key, Object value, Map<String, Object> currentLevelMap) {
+		String cleanKey = cleanArrayKey(key);
+		int[] items = getArrayIndexes(key, cleanKey);
+		List<Object> parent = getArrayLastList(currentLevelMap, cleanKey, items);
+
+		// Add last element
+		System.out.println(key);
+		parent.add(items[items.length - 1], value);
+
+	}
+
+	private static Map<String, Object> getMapFromArrayKey(String key, Map<String, Object> currentLevelMap) {
+		String cleanKey = cleanArrayKey(key);
+		int[] items = getArrayIndexes(key, cleanKey);
+		List<Object> parent = getArrayLastList(currentLevelMap, cleanKey, items);
+
+		// Add last element
+		Map<String, Object> map;
+		if (parent.size() > items[items.length - 1]) {
+			map = (Map<String, Object>) parent.get(items[items.length - 1]);
+		} else {
+			map = new HashMap<>();
+			parent.add(items[items.length - 1], map);
 		}
 
-		String stringValue = (String) value;
+		return map;
+	}
+
+	private static Object convertValue(String stringValue) {
+
+		Object value = null;
 
 		if (stringValue.matches("^[+-]?[0-9]+$")) {
 			value = Long.parseLong(stringValue);
@@ -164,6 +157,8 @@ public final class MapConverter {
 			value = true;
 		} else if (stringValue.matches("(?i:^(false|off|no)$)")) {
 			value = false;
+		} else {
+			value = stringValue;
 		}
 
 		return value;

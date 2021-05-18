@@ -27,9 +27,9 @@ public class ConfigurationResource {
 	ConfigurationService service;
 
 	/**
-	 * 
+	 *
 	 * /{application}/{profile}[/{label}]
-	 * 
+	 *
 	 */
 	@AuthenticationNeeded
 	@GET
@@ -39,7 +39,7 @@ public class ConfigurationResource {
 			@PathParam("application") String application, @PathParam("profile") String profile) {
 		LOG.debug("Obtaining config for app: " + application + " profile: " + profile + " label: " + label + " . JSON");
 		Map<String, String> configuration = service.getConfiguration(application, profile, label);
-		return Response.ok(MapConverter.convert(configuration)).build();
+		return Response.ok(MapConverter.expandMap(configuration)).build();
 	}
 
 	@AuthenticationNeeded

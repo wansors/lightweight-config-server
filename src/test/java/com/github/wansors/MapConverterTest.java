@@ -35,7 +35,7 @@ public class MapConverterTest {
 		testMap.put("nodo.subnodo3.c", "123.45");
 		testMap.put("nodo.subnodo3.d", "false");
 
-		Map<String, Object> resultMap = MapConverter.convert(testMap);
+		Map<String, Object> resultMap = MapConverter.expandMap(testMap);
 
 		assertEquals("test", resultMap.get("test"));
 		Map<String, Object> nodo = (Map<String, Object>) resultMap.get("nodo");
@@ -56,7 +56,7 @@ public class MapConverterTest {
 		assertNotNull(subnodo3, "Map subnodo3 does not exist");
 		assertEquals(true, subnodo3.get("a"));
 		assertEquals(Long.valueOf(-24), subnodo3.get("b"));
-		assertEquals(123.45, subnodo3.get("c"));
+		assertEquals(123.45F, subnodo3.get("c"));
 		assertEquals(false, subnodo3.get("d"));
 	}
 
@@ -80,18 +80,18 @@ public class MapConverterTest {
 
 		String resultString = MapConverter.convertToPropertiesFormatString(testMap);
 
-		assertTrue(resultString.contains("test=test\n"));
-		assertTrue(resultString.contains("nodo.subnodo1.a=tRue\n"));
-		assertTrue(resultString.contains("odo.subnodo1.b=b\n"));
-		assertTrue(resultString.contains("odo.subnodo2.a=a\n"));
-		assertTrue(resultString.contains("nodo.subnodo2.d=no\n"));
-		assertTrue(resultString.contains("nodo.subnodo3.c=123.45\n"));
-		assertTrue(resultString.contains("odo.subnodo3.d=false\n"));
-		assertTrue(resultString.contains("odo.subnodo1.c=-123\n"));
-		assertTrue(resultString.contains("odo.subnodo2.b=b\n"));
-		assertTrue(resultString.contains("nodo.subnodo3.a=true\n"));
-		assertTrue(resultString.contains("odo.subnodo1.d=no\n"));
-		assertTrue(resultString.contains("nodo.subnodo2.c=123.45\n"));
+		assertTrue(resultString.contains("test: test\n"));
+		assertTrue(resultString.contains("nodo.subnodo1.a: tRue"));
+		assertTrue(resultString.contains("odo.subnodo1.b: b"));
+		assertTrue(resultString.contains("odo.subnodo2.a: a"));
+		assertTrue(resultString.contains("nodo.subnodo2.d: no"));
+		assertTrue(resultString.contains("nodo.subnodo3.c: 123.45"));
+		assertTrue(resultString.contains("odo.subnodo3.d: false"));
+		assertTrue(resultString.contains("odo.subnodo1.c: -123"));
+		assertTrue(resultString.contains("odo.subnodo2.b: b"));
+		assertTrue(resultString.contains("nodo.subnodo3.a: true"));
+		assertTrue(resultString.contains("odo.subnodo1.d: no"));
+		assertTrue(resultString.contains("nodo.subnodo2.c: 123.45"));
 	}
 
 	@Test()
@@ -117,7 +117,7 @@ public class MapConverterTest {
 		testMap.put("array[1]", "01");
 		testMap.put("array[2]", "02");
 
-		Map<String, Object> resultMap = MapConverter.convert(testMap);
+		Map<String, Object> resultMap = MapConverter.expandMap(testMap);
 
 		List<Object> lista = (List<Object>) resultMap.get("subnodo");
 		assertEquals(3, lista.size());
@@ -149,6 +149,6 @@ public class MapConverterTest {
 			map.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
 		}
 
-		Map<String, Object> testMap = MapConverter.convert(map);
+		Map<String, Object> testMap = MapConverter.expandMap(map);
 	}
 }
