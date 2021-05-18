@@ -110,11 +110,24 @@ public final class MapConverter {
 			}
 			if (currentList == null) {
 				currentList = new ArrayList<>();
-				parent.add(currentPos, currentList);
+				addItemToListFillingBlanks(parent, currentPos, currentList);
 			}
 			parent = currentList;
 		}
 		return parent;
+	}
+
+	private static void addItemToListFillingBlanks(List<Object> list, int pos, Object value) {
+		if (list.size() > pos) {
+			list.remove(pos);
+		} else {
+			// Fill blanks
+			for (int x = list.size(); x < pos; x++) {
+				list.add(x, null);
+			}
+		}
+		list.add(pos, value);
+
 	}
 
 	private static void keyToArray(String key, Object value, Map<String, Object> currentLevelMap) {
@@ -124,7 +137,7 @@ public final class MapConverter {
 
 		// Add last element
 		System.out.println(key);
-		parent.add(items[items.length - 1], value);
+		addItemToListFillingBlanks(parent, items[items.length - 1], value);
 
 	}
 
