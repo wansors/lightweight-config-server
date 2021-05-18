@@ -1,0 +1,27 @@
+global:
+  var_string: value1
+  var_number: 42
+  var_boolean1: true
+  var_boolean2: no
+inline.var: 123
+inline.list: [123,345,456]
+empty:
+  hash:
+    a: first hash
+    b:
+    c:
+  simple_list:
+    - first element
+    - second element
+    - third element
+    - 
+var:
+  complex_list:
+    - node: node0
+      filters:
+        - - filter 0
+          - false
+    - node: node1
+      filters:
+        - - filter 1
+          - yes  
