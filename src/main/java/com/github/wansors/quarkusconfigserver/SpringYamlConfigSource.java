@@ -30,7 +30,6 @@ public class SpringYamlConfigSource extends MapBackedConfigSource {
 	private static final long serialVersionUID = -418186029484953531L;
 
 	private static final String NAME_PREFIX = "SpringYamlConfigSource[source=";
-	public static final String TYPE_PREFIX = "SpringYamlConfigSource.type.";
 
 	private final Set<String> propertyNames;
 
@@ -105,10 +104,10 @@ public class SpringYamlConfigSource extends MapBackedConfigSource {
 
 			if (value == null) {
 				target.put(key, "");
-				target.put(TYPE_PREFIX + key, String.class.getName());
+				target.put(ConfigurationService.TYPE_PREFIX + key, String.class.getName());
 			} else if (value instanceof String) {
 				target.put(key, (String) value);
-				target.put(TYPE_PREFIX + key, String.class.getName());
+				target.put(ConfigurationService.TYPE_PREFIX + key, String.class.getName());
 			} else if (value instanceof Map) {
 				flattenYaml(key, (Map<Object, Object>) value, target, false);
 			} else if (value instanceof List) {
@@ -120,11 +119,11 @@ public class SpringYamlConfigSource extends MapBackedConfigSource {
 				// Empty List case
 				if (list.isEmpty()) {
 					target.put(key, "[]");
-					target.put(TYPE_PREFIX + key, List.class.getName());
+					target.put(ConfigurationService.TYPE_PREFIX + key, List.class.getName());
 				}
 			} else {
 				target.put(key, value.toString());
-				target.put(TYPE_PREFIX + key, value.getClass().getName());
+				target.put(ConfigurationService.TYPE_PREFIX + key, value.getClass().getName());
 
 			}
 
@@ -157,6 +156,6 @@ public class SpringYamlConfigSource extends MapBackedConfigSource {
 	}
 
 	public String getValueType(String key) {
-		return getValue(TYPE_PREFIX + key);
+		return getValue(ConfigurationService.TYPE_PREFIX + key);
 	}
 }

@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 
 public final class MapConverter {
 
+	private static final String DEFAULT_TYPE = "java.lang.String";
+
 	private MapConverter() {
 	}
 
@@ -28,7 +30,7 @@ public final class MapConverter {
 		return propertiesStringBuilder.toString();
 	}
 
-	public static Map<String, Object> expandMap(Map<String, String> map) {
+	public static Map<String, Object> expandMap(Map<String, Object> map) {
 
 		Set<String> keys = map.keySet();
 		List<String> array = new ArrayList<>(keys);
@@ -36,7 +38,7 @@ public final class MapConverter {
 
 		Map<String, Object> mapFinal = new HashMap<>();
 		for (String key : array) {
-			String value = map.get(key);
+			Object value = map.get(key);
 			MapConverter.mapper(key, value, mapFinal);
 		}
 
@@ -50,15 +52,15 @@ public final class MapConverter {
 	 * @param value
 	 * @param map
 	 */
-	private static void mapper(String key, String value, Map<String, Object> map) {
+	private static void mapper(String key, Object value, Map<String, Object> map) {
 
 		if (!key.contains(".") && !isList(key)) {
 			// Last leaf from a map
-			map.put(key, convertValue(value));
+			map.put(key, value);
 			return;
 		} else if (!key.contains(".") && isList(key)) {
 			// Last leaf but is an array
-			keyToArray(key, convertValue(value), map);
+			keyToArray(key, value, map);
 			return;
 		}
 
@@ -155,31 +157,5 @@ public final class MapConverter {
 		}
 
 		return map;
-	}
-
-	private static Object convertValue(String stringValue) {
-
-		Object value = stringValue;
-
-		try {
-			if (stringValue.matches("^[+-]?[0-9]+$")) {
-				value = Long.parseLong(stringValue);
-			} else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+$")) {
-				value = Float.parseFloat(stringValue);
-			} else if (stringValue.equals("true")) {
-				value = Boolean.TRUE;
-			} else if (stringValue.equals("false")) {
-				value = Boolean.FALSE;
-			}
-		} catch (NumberFormatException e) {
-			// TODO: handle exception
-		}
-		if (String.valueOf(value).length() != stringValue.length()) {
-			// Workaorund if a mapping has changed some string
-			// Example: 07760 -> int 7760 and
-			value = stringValue;
-		}
-
-		return value;
 	}
 }

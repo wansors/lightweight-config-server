@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -24,6 +25,8 @@ import io.smallrye.config.PropertiesConfigSource;
 @Dependent
 public class ConfigurationService {
 
+	public static final String TYPE_PREFIX = "configservicetype.";
+
 	private static final Logger LOG = Logger.getLogger(ConfigurationService.class);
 	@Inject
 	ConfigurationRepository repository;
@@ -32,7 +35,48 @@ public class ConfigurationService {
 		return generateConf(application, profile, label);
 	}
 
-	private Map<String, String> generateConf(String application, String profile, String label) {
+	public Map<String, Object> getConfigurationWithTypes(String application, String profile, String label) {
+		return generateConfWithTypes(application, profile, label);
+	}
+
+	private Map<String, Object> generateConfWithTypes(String application, String profile, String label) {
+		Config config = buildConfig(application, profile, label);
+
+		// Generate Map with all configs
+		Map<String, Object> map = new HashMap<>();
+		Object value;
+		String className;
+		Iterable<String> propertyNames = config.getPropertyNames();
+		for (String propertyName : propertyNames) {
+			if (!propertyName.startsWith(TYPE_PREFIX)) {
+				try {
+					if (StreamSupport.stream(propertyNames.spliterator(), false)
+							.anyMatch(name -> (TYPE_PREFIX + propertyName).equals(name))) {
+						// If type prefix exist, we use it
+						className = config.getValue(TYPE_PREFIX + propertyName, String.class);
+						if (className.equals("java.util.List")) {
+							// Empty array
+							value = Collections.EMPTY_LIST;
+						} else {
+							value = config.getValue(propertyName, Class.forName(className));
+						}
+					} else {
+						// Not inform, default is string
+						value = config.getValue(propertyName, String.class);
+					}
+
+				} catch (Exception e) {
+					LOG.warn("" + e.getMessage());
+					value = "";
+					// TODO find the way to obtain value without blanking
+				}
+				map.put(propertyName, value);
+			}
+		}
+		return map;
+	}
+
+	private Config buildConfig(String application, String profile, String label) {
 		ConfigProviderResolver resolver = ConfigProviderResolver.instance();
 		ConfigBuilder builder = resolver.getBuilder();
 
@@ -53,20 +97,26 @@ public class ConfigurationService {
 				LOG.warn("Unable to load " + file.getUrl(), e);
 			}
 		}
-		Config config = builder.withSources(sources.toArray(new ConfigSource[sources.size()]))
+		return builder.withSources(sources.toArray(new ConfigSource[sources.size()]))
 				.withConverter(String.class, 101, new EmptyStringConverter()).build();
+	}
+
+	private Map<String, String> generateConf(String application, String profile, String label) {
+		Config config = buildConfig(application, profile, label);
 
 		// Generate Map with all configs
 		Map<String, String> map = new HashMap<>();
 		String value;
 		for (String propertyName : config.getPropertyNames()) {
-			try {
-				value = config.getValue(propertyName, String.class);
-			} catch (Exception e) {
-				LOG.warn("" + e.getMessage());
-				value = "";
+			if (!propertyName.startsWith(TYPE_PREFIX)) {
+				try {
+					value = config.getValue(propertyName, String.class);
+				} catch (Exception e) {
+					LOG.warn("" + e.getMessage());
+					value = "";
+				}
+				map.put(propertyName, value);
 			}
-			map.put(propertyName, value);
 		}
 		return map;
 	}

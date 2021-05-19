@@ -20,7 +20,7 @@ public class MapConverterTest {
 	@Test()
 	public void convertTest() {
 
-		Map<String, String> testMap = new HashMap<>();
+		Map<String, Object> testMap = new HashMap<>();
 		testMap.put("test", "test");
 		testMap.put("nodo.subnodo1.a", "tRue");
 		testMap.put("nodo.subnodo1.b", "b");
@@ -97,7 +97,7 @@ public class MapConverterTest {
 	@Test()
 	public void convertTestArray() {
 
-		Map<String, String> testMap = new HashMap<>();
+		Map<String, Object> testMap = new HashMap<>();
 		testMap.put("subnodo[0].a", "a0");
 		testMap.put("subnodo[0].b", "b0");
 		testMap.put("subnodo[1].a", "a1");
@@ -144,7 +144,7 @@ public class MapConverterTest {
 
 		properties.load(stream);
 
-		Map<String, String> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<>();
 		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
 			map.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
 		}

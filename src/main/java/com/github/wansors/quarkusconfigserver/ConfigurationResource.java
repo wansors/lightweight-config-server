@@ -38,7 +38,7 @@ public class ConfigurationResource {
 	public Response standardLabelApplicationProfileJson(@PathParam("label") String label,
 			@PathParam("application") String application, @PathParam("profile") String profile) {
 		LOG.debug("Obtaining config for app: " + application + " profile: " + profile + " label: " + label + " . JSON");
-		Map<String, String> configuration = service.getConfiguration(application, profile, label);
+		Map<String, Object> configuration = service.getConfigurationWithTypes(application, profile, label);
 		return Response.ok(MapConverter.expandMap(configuration)).build();
 	}
 
