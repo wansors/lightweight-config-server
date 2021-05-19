@@ -58,7 +58,7 @@ public final class MapConverter {
 			return;
 		} else if (!key.contains(".") && isList(key)) {
 			// Last leaf but is an array
-			keyToArray(key, value, map);
+			keyToArray(key, convertValue(value), map);
 			return;
 		}
 
@@ -160,17 +160,24 @@ public final class MapConverter {
 
 	private static Object convertValue(String stringValue) {
 
-		Object value = null;
+		Object value = stringValue;
 
-		if (stringValue.matches("^[+-]?[0-9]+$")) {
-			value = Long.parseLong(stringValue);
-		} else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+$")) {
-			value = Float.parseFloat(stringValue);
-		} else if (stringValue.matches("(?i:^(true|on|yes)$)")) {
-			value = true;
-		} else if (stringValue.matches("(?i:^(false|off|no)$)")) {
-			value = false;
-		} else {
+		try {
+			if (stringValue.matches("^[+-]?[0-9]+$")) {
+				value = Long.parseLong(stringValue);
+			} else if (stringValue.matches("^[+-]?[0-9]+\\.[0-9]+$")) {
+				value = Float.parseFloat(stringValue);
+			} else if (stringValue.equals("true")) {
+				value = Boolean.TRUE;
+			} else if (stringValue.equals("false")) {
+				value = Boolean.FALSE;
+			}
+		} catch (NumberFormatException e) {
+			// TODO: handle exception
+		}
+		if (String.valueOf(value).length() != stringValue.length()) {
+			// Workaorund if a mapping has changed some string
+			// Example: 07760 -> int 7760 and
 			value = stringValue;
 		}
 

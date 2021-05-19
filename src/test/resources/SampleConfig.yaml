@@ -3,6 +3,7 @@ global:
   var_number: 42
   var_boolean1: true
   var_boolean2: no
+  var_string_number: '07760'
 inline.var: 123
 inline.list: [123,345,456]
 empty:

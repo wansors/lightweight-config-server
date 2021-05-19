@@ -24,7 +24,7 @@ public class SpringYamlConfigSourceTest {
 			System.out.println(key + "=" + properties.get(key));
 		}
 
-		assertEquals(21, properties.size());
+		assertEquals(22, properties.size());
 
 		assertEquals("first hash", config.getValue("empty.hash.a"));
 		assertEquals("", config.getValue("empty.hash.b"));
@@ -37,6 +37,7 @@ public class SpringYamlConfigSourceTest {
 		assertEquals("false", config.getValue("global.var_boolean2"));
 		assertEquals("42", config.getValue("global.var_number"));
 		assertEquals("value1", config.getValue("global.var_string"));
+		assertEquals("07760", config.getValue("global.var_string_number"));
 		assertEquals("123", config.getValue("inline.list[0]"));
 		assertEquals("345", config.getValue("inline.list[1]"));
 		assertEquals("456", config.getValue("inline.list[2]"));
