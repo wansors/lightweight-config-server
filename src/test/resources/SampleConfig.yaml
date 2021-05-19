@@ -4,6 +4,7 @@ global:
   var_boolean1: true
   var_boolean2: no
   var_string_number: '07760'
+  var_long: 123123123123123123
 inline.var: 123
 inline.list: [123,345,456]
 empty:
@@ -16,6 +17,11 @@ empty:
     - second element
     - third element
     - 
+  list: []
+string:
+    number: '42'
+    boolean: 'true'
+    list: '[]'    
 var:
   complex_list:
     - node: node0
