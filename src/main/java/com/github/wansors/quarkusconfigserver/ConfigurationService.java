@@ -58,8 +58,15 @@ public class ConfigurationService {
 
 		// Generate Map with all configs
 		Map<String, String> map = new HashMap<>();
+		String value;
 		for (String propertyName : config.getPropertyNames()) {
-			map.put(propertyName, config.getValue(propertyName, String.class));
+			try {
+				value = config.getValue(propertyName, String.class);
+			} catch (Exception e) {
+				LOG.warn("" + e.getMessage());
+				value = "";
+			}
+			map.put(propertyName, value);
 		}
 		return map;
 	}

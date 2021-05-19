@@ -136,7 +136,6 @@ public final class MapConverter {
 		List<Object> parent = getArrayLastList(currentLevelMap, cleanKey, items);
 
 		// Add last element
-		System.out.println(key);
 		addItemToListFillingBlanks(parent, items[items.length - 1], value);
 
 	}

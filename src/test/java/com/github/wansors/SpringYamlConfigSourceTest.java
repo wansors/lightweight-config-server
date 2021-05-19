@@ -20,9 +20,6 @@ public class SpringYamlConfigSourceTest {
 		assertEquals(12, config.getOrdinal());
 
 		Map<String, String> properties = config.getProperties();
-		for (String key : properties.keySet()) {
-			System.out.println(key + "=" + properties.get(key));
-		}
 
 		assertEquals(22, properties.size());
 
