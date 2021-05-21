@@ -139,6 +139,11 @@ public class GitRepository {
 	}
 
 	public List<ConfigurationFileResource> getFiles(String application, String profile, String label) {
+		return getFiles(application, profile, label, 0);
+	}
+
+	public List<ConfigurationFileResource> getFiles(String application, String profile, String label,
+			int priorityBase) {
 
 		File dir = getBranch(label);
 
@@ -154,16 +159,18 @@ public class GitRepository {
 		addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, 3, true);
 		addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, 4, true);
 
-		// C) application-{profile}.(properties(5).yml(6))
-		// (General properties that apply to all applications and profile-specific )
-		addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 5, false);
-		addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 6, false);
+		if (profile != null) {
+			// C) application-{profile}.(properties(5).yml(6))
+			// (General properties that apply to all applications and profile-specific )
+			addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 5, false);
+			addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 6, false);
 
-		// D) {application}-{profile}.(properties(7)/yml(8))
-		// (Specific properties that apply to an application-specific and a
-		// profile-specific )
-		addConfigurationFileResource(dir, result, application, profile, PROPERTIES_EXTENSION, 7, true);
-		addConfigurationFileResource(dir, result, application, profile, YAML_EXTENSION, 8, true);
+			// D) {application}-{profile}.(properties(7)/yml(8))
+			// (Specific properties that apply to an application-specific and a
+			// profile-specific )
+			addConfigurationFileResource(dir, result, application, profile, PROPERTIES_EXTENSION, 7, true);
+			addConfigurationFileResource(dir, result, application, profile, YAML_EXTENSION, 8, true);
+		}
 
 		// Debemos usar el gitConfiguration.destinationDirectory para listar los
 		// ficheros y ver si existen antes de devolverlos
@@ -238,6 +245,16 @@ public class GitRepository {
 
 	public boolean isReady() {
 		return gitRepositoryBranches.size() != 0;
+	}
+
+	public boolean matchesPatternProfile(String profile) {
+		return gitConf.patternProfile != null && gitConf.patternProfile.equals(profile);
+
+	}
+
+	public String getPatternProfileLabelKey() {
+		return gitConf.patternProfileLabelKey;
+
 	}
 
 }

@@ -87,10 +87,14 @@ public class ConfigurationService {
 	}
 
 	private Config buildConfig(String application, String profile, String label) {
-		ConfigProviderResolver resolver = ConfigProviderResolver.instance();
-		ConfigBuilder builder = resolver.getBuilder();
 
 		List<ConfigurationFileResource> list = repository.getConfigurationFiles(application, profile, label);
+		return buildConfig(list);
+	}
+
+	public static Config buildConfig(List<ConfigurationFileResource> list) {
+		ConfigProviderResolver resolver = ConfigProviderResolver.instance();
+		ConfigBuilder builder = resolver.getBuilder();
 
 		List<ConfigSource> sources = new ArrayList<ConfigSource>();
 
@@ -131,7 +135,7 @@ public class ConfigurationService {
 		return map;
 	}
 
-	private ConfigSource createConfigSource(ConfigurationFileResource file) throws IOException {
+	private static ConfigSource createConfigSource(ConfigurationFileResource file) throws IOException {
 		if (file.getType() == ConfigurationFileResourceType.YAML) {
 			return new SpringYamlConfigSource(file.getUrl(), file.getOrdinal());
 

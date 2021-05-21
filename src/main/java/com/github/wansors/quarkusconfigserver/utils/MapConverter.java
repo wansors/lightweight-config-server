@@ -10,8 +10,6 @@ import java.util.stream.Stream;
 
 public final class MapConverter {
 
-	private static final String DEFAULT_TYPE = "java.lang.String";
-
 	private MapConverter() {
 	}
 
@@ -52,6 +50,7 @@ public final class MapConverter {
 	 * @param value
 	 * @param map
 	 */
+	@SuppressWarnings("unchecked")
 	private static void mapper(String key, Object value, Map<String, Object> map) {
 
 		if (!key.contains(".") && !isList(key)) {
@@ -98,6 +97,7 @@ public final class MapConverter {
 		return Stream.of(key.replace(cleanKey, "").replace("[", "").split("]")).mapToInt(Integer::parseInt).toArray();
 	}
 
+	@SuppressWarnings("unchecked")
 	private static List<Object> getArrayLastList(Map<String, Object> currentLevelMap, String cleanKey, int[] items) {
 		List<Object> parent = (List<Object>) currentLevelMap.get(cleanKey);
 		if (parent == null) {
@@ -142,6 +142,7 @@ public final class MapConverter {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private static Map<String, Object> getMapFromArrayKey(String key, Map<String, Object> currentLevelMap) {
 		String cleanKey = cleanArrayKey(key);
 		int[] items = getArrayIndexes(key, cleanKey);
