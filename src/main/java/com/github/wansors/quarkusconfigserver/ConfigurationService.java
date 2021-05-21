@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.context.Dependent;
@@ -66,14 +67,23 @@ public class ConfigurationService {
 					}
 
 				} catch (Exception e) {
-					LOG.warn("" + e.getMessage());
-					value = "";
-					// TODO find the way to obtain value without blanking
+					LOG.warn("[" + propertyName + "] value error: " + e.getMessage());
+					value = getRawValue(config, propertyName);
 				}
 				map.put(propertyName, value);
 			}
 		}
 		return map;
+	}
+
+	/**
+	 * Finds the original value, when Config.getValue fails
+	 */
+	private String getRawValue(Config config, String key) {
+		Stream<ConfigSource> sorted = StreamSupport.stream(config.getConfigSources().spliterator(), false)
+				.sorted((o1, o2) -> o1.getOrdinal() - o2.getOrdinal());
+
+		return sorted.filter((cf) -> cf.getValue(key) != null).findFirst().get().getValue(key);
 	}
 
 	private Config buildConfig(String application, String profile, String label) {
