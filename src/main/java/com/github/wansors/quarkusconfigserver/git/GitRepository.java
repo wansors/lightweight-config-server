@@ -9,15 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.wansors.quarkusconfigserver.ConfigurationFileResource;
-import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
-import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCodeEnum;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.jboss.logging.Logger;
+
+import com.github.wansors.quarkusconfigserver.ConfigurationFileResource;
+import com.github.wansors.quarkusconfigserver.rest.ApiWsException;
+import com.github.wansors.quarkusconfigserver.rest.ErrorTypeCodeEnum;
 
 public class GitRepository {
 
@@ -93,6 +93,10 @@ public class GitRepository {
 			LOG.debug("Requesting empty branch, returning default");
 			// Return default branch
 			return defaultGitRepositoryBranch.getBranchFolder();
+		} else {
+			// If the git branch or tag name contains a slash ("/") then the label in the
+			// HTTP URL should be specified with the special string "(_)" instead
+			branchName = branchName.replace("(_)", "/");
 		}
 
 		File file = null;
