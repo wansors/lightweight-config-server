@@ -11,6 +11,13 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 - No encryption support
 - No Placeholders in Git URI
 
+## New functionality
+### Multirepository configurations - Pattern on profile (TODO)
+It is possible to get a specific configuration from two different repositories.
+Using the pattern-profile configuration, you can set which server will be used to get the first files using the {label}{application}{profile} from the request. Then the config server will look for the config key defined on pattern-profile-label-key and will use it to find the configuration in the other repository, using the value read and application from the previous call, the profile will not be used on the second call.
+
+If the field is not inform or there is no match, this feature will not be active.
+
 # Benchmarks
 Comparison have done with hyness/spring-cloud-config-server
 
