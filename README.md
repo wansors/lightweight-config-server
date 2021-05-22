@@ -1,6 +1,6 @@
 # Lightweight Config Server
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Lightweight Config Server is a quarkus based alternative to Spring Cloud Config Server.
@@ -103,7 +103,7 @@ docker run -i --rm -p 8888:8888  --name quarkusconfigserver-native quarkus/confi
 docker build -f src/main/docker/Dockerfile.jvm -t quarkus/configserver-jvm .
 docker run -i --rm -p 8881:8888 --name quarkusconfigserver-jvm quarkus/configserver-jvm
 
-## Contributors ✨
+## Contributors âœ¨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
@@ -112,7 +112,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/jgspascual"><img src="https://avatars.githubusercontent.com/u/42868269?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joan Sabater</b></sub></a><br /><a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Tests">⚠️</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Code">💻</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Documentation">📖</a></td>
+  <td align="center"><a href="https://github.com/wansors"><img src="https://avatars.githubusercontent.com/u/15862396?v=4?s=100" width="100px;" alt=""/><br /><sub><b>wansors</b></sub></a><br /><a href="https://github.com/wansors/lightweight-config-server/commits?author=wansors" title="Tests">âš ï¸�</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=wansors" title="Code">ðŸ’»</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=wansors" title="Documentation">ðŸ“–</a></td>
+    <td align="center"><a href="https://github.com/jgspascual"><img src="https://avatars.githubusercontent.com/u/42868269?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joan Sabater</b></sub></a><br /><a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Tests">âš ï¸�</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Code">ðŸ’»</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Documentation">ðŸ“–</a></td>
   </tr>
 </table>
 
