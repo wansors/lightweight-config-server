@@ -1,6 +1,6 @@
 # Lightweight Config Server
 
-Lightweight Config Server is a quarkus based application alternative to Spring Cloud Config Server.
+Lightweight Config Server is a quarkus based alternative to Spring Cloud Config Server.
 
 Lightweight Config Server implements the same endpoints as Spring Cloud Config Server with the same outputs. However this application boots faster and consume less memory, ideal for k8s environments!.
 
@@ -36,7 +36,7 @@ With git repositories, resources with file names in application* (application.pr
 Config Server also supports a search path with placeholders for the {application} and {profile}
 
 ## How do I start?
-Easy, just extend the base docker image and copy you config in Yaml format on TODO
+Easy, just extend the base docker image and copy your configuration in Yaml format on TODO
 
 
 
