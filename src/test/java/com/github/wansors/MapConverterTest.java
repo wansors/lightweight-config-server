@@ -42,22 +42,22 @@ public class MapConverterTest {
 		assertNotNull(nodo, "Map nodo does not exist");
 		Map<String, Object> subnodo1 = (Map<String, Object>) nodo.get("subnodo1");
 		assertNotNull(subnodo1, "Map subnodo1 does not exist");
-		assertEquals(true, subnodo1.get("a"));
+		assertEquals("tRue", subnodo1.get("a"));
 		assertEquals("b", subnodo1.get("b"));
-		assertEquals(-123L, subnodo1.get("c"));
-		assertEquals(false, subnodo1.get("d"));
+		assertEquals("-123", subnodo1.get("c"));
+		assertEquals("no", subnodo1.get("d"));
 		Map<String, Object> subnodo2 = (Map<String, Object>) nodo.get("subnodo2");
 		assertNotNull(subnodo2, "Map subnodo2 does not exist");
 		assertEquals("a", subnodo2.get("a"));
 		assertEquals("b", subnodo2.get("b"));
-		assertEquals((float) 123.45, subnodo2.get("c"));
-		assertEquals(false, subnodo2.get("d"));
+		assertEquals("123.45", subnodo2.get("c"));
+		assertEquals("no", subnodo2.get("d"));
 		Map<String, Object> subnodo3 = (Map<String, Object>) nodo.get("subnodo3");
 		assertNotNull(subnodo3, "Map subnodo3 does not exist");
-		assertEquals(true, subnodo3.get("a"));
-		assertEquals(Long.valueOf(-24), subnodo3.get("b"));
-		assertEquals(123.45F, subnodo3.get("c"));
-		assertEquals(false, subnodo3.get("d"));
+		assertEquals("true", subnodo3.get("a"));
+		assertEquals("-24", subnodo3.get("b"));
+		assertEquals("123.45", subnodo3.get("c"));
+		assertEquals("false", subnodo3.get("d"));
 	}
 
 	@Test
