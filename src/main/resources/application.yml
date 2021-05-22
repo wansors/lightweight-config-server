@@ -1,0 +1,29 @@
+---
+quarkus:
+  smallrye-health:
+    root-path: /actuator/health
+  http:
+    port: 8888
+  application:
+    name: quarkusconfigserver
+  log:
+    level: INFO
+quarkusconfigserver:
+    security:
+        enabled: true
+        user: user
+        password: password
+    repository:
+      git:
+        - uri: https://github.com/spring-cloud-samples/config-repo.git
+          refresh-rate: 15
+          force-pull: false
+        - uri: https://github.com/wansors/spring-cloud-config-samples.git
+          refresh-rate: 300
+          force-pull: true
+          pattern: 'labels-*'
+          searchPaths:
+            - base/backoffice-ws
+            - base/backoffice-front
+            - '{profile}/backoffice-ws'
+            - '{profile}/backoffice-front'
