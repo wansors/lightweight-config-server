@@ -103,7 +103,7 @@ docker run -i --rm -p 8888:8888  --name quarkusconfigserver-native quarkus/confi
 docker build -f src/main/docker/Dockerfile.jvm -t quarkus/configserver-jvm .
 docker run -i --rm -p 8881:8888 --name quarkusconfigserver-jvm quarkus/configserver-jvm
 
-## Contributors âœ¨
+## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
