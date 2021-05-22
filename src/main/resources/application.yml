@@ -16,14 +16,16 @@ quarkusconfigserver:
     repository:
       git:
         - uri: https://github.com/wansors/lightweight-config-server-samples1.git
-          refresh-rate: 300
+          refresh-rate: 15
           force-pull: true
-          pattern: 'labels-*'
+          pattern-profile: foo
+          pattern-profile-label-key: external.repo.branch
           searchPaths:
-            - base/backoffice-ws
-            - base/backoffice-front
-            - '{profile}/backoffice-ws'
-            - '{profile}/backoffice-front'
+            - '{profile}'
         - uri: https://github.com/wansors/lightweight-config-server-samples2.git
           refresh-rate: 15
           force-pull: false
+          pattern: 'multirepo*'
+          searchPaths:
+            - common
+            - '{profile}'

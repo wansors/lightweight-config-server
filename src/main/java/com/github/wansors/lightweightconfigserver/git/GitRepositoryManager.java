@@ -121,8 +121,6 @@ public class GitRepositoryManager {
 				// If no match is found, we return the default one
 				repository = entry.getValue();
 			} else if ((application + "/" + profile).matches(entry.getKey().replace("*", ".*"))) {
-				// TODO Logica la misma que en
-				// https://cloud.spring.io/spring-cloud-config/reference/html/#_pattern_matching_and_multiple_repositories
 				LOG.debug("MATCH KEY: " + entry.getKey());
 				repository = entry.getValue();
 				break;
