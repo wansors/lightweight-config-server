@@ -13,7 +13,7 @@ import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.wansors.quarkusconfigserver.utils.MapConverter;
+import com.github.wansors.lightweightconfigserver.utils.MapConverter;
 
 public class MapConverterTest {
 

@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.wansors.quarkusconfigserver.SpringYamlConfigSource;
+import com.github.wansors.lightweightconfigserver.SpringYamlConfigSource;
 
 public class SpringYamlConfigSourceTest {
 

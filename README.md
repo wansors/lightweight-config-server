@@ -1,24 +1,48 @@
-# Quarkus Config Server. A Supersonic alternative to Spring Cloud Config Server.
+# Lightweight Config Server
 
-Quarkus Config Server implements the same endpoints as Spring Cloud Config Server with the same outputs. However this application boots faster and with less memory, ideal for k8s environments!.
+Lightweight Config Server is a quarkus based application alternative to Spring Cloud Config Server.
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Lightweight Config Server implements the same endpoints as Spring Cloud Config Server with the same outputs. However this application boots faster and consume less memory, ideal for k8s environments!.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+This project uses Quarkus, the Supersonic Subatomic Java Framework (https://quarkus.io/).
 
-## Known Limitations vs Spring Cloud Config Server
+
+
+## Features
+### Known Limitations vs Spring Cloud Config Server
 - Supports only git repositories
-- No encryption support
+- No encryption value support
 - No Placeholders in Git URI
 
-## New functionality
-### Multirepository configurations - Pattern on profile (TODO)
+### Multirepository configurations - Filter by profile
 It is possible to get a specific configuration from two different repositories.
 Using the pattern-profile configuration, you can set which server will be used to get the first files using the {label}{application}{profile} from the request. Then the config server will look for the config key defined on pattern-profile-label-key and will use it to find the configuration in the other repository, using the value read and application from the previous call, the profile will not be used on the second call.
 
 If the field is not inform or there is no match, this feature will not be active.
 
-# Benchmarks
+### Liveness Probe
+http://localhost:8888/actuator/health
+
+### Config Files preference
+
+With git repositories, resources with file names in application* (application.properties, application.yml, application-*.properties, and so on) are shared between all client applications. You can use resources with these file names to configure global defaults and have them be overridden by application-specific files as necessary.
+
+* application.(properties/yml), (General properties that apply to all applications and all profiles)
+* {application}.(properties/yml) (Specific properties that apply to an  application-specific and all profiles)
+* application-{profile}.(properties/yml) (General properties that apply to all applications and profile-specific )
+* {application}-{profile}.(properties/yml) (Specific properties that apply to an application-specific  and a profile-specific )
+
+### Placeholders in Git Search Paths
+Config Server also supports a search path with placeholders for the {application} and {profile}
+
+## How do I start?
+Easy, just extend the base docker image and copy you config in Yaml format on TODO
+
+
+
+## Delete From Here
+
+### Benchmarks
 Comparison have done with hyness/spring-cloud-config-server
 
 docker run -it -p 8883:8888 -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/wansors/spring-cloud-config-samples hyness/spring-cloud-config-server
@@ -26,11 +50,10 @@ docker run -it -p 8883:8888 -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github
 
 docker stats
 
-## Liveness Probe
-http://localhost:8888/q/health
 
 
-## How supersonic is it?
+
+### How supersonic is it?
 
 Benchmark | JVM | Native | spring-cloud-config-server 
 --- | --- | --- | --- 
@@ -40,7 +63,7 @@ Docker size| - | - | -
 
 
 
-## Creating a native executable
+### Creating a native executable
 
 You can create a native executable using: 
 ```shell script
@@ -56,30 +79,23 @@ You can then execute your native executable with: `./target/quarkus-config-serve
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
 
-# Build docker image
 
-## Native
+
+
+
+
+
+
+
+
+### Build docker image
+
+##### Native
 ./mvnw package -Pnative "-Dquarkus.native.container-build=true"
 docker build -f src/main/docker/Dockerfile.native -t quarkus/configserver .
 docker run -i --rm -p 8888:8888  --name quarkusconfigserver-native quarkus/configserver
 
-## JVM
+#### JVM
 ./mvnw clean package
 docker build -f src/main/docker/Dockerfile.jvm -t quarkus/configserver-jvm .
 docker run -i --rm -p 8881:8888 --name quarkusconfigserver-jvm quarkus/configserver-jvm
-
-
-
-## Config Files preference
-
-With git repositories, resources with file names in application* (application.properties, application.yml, application-*.properties, and so on) are shared between all client applications. You can use resources with these file names to configure global defaults and have them be overridden by application-specific files as necessary.
-
-* application.(properties/yml), (General properties that apply to all applications and all profiles)
-* {application}.(properties/yml) (Specific properties that apply to an  application-specific and all profiles)
-* application-{profile}.(properties/yml) (General properties that apply to all applications and profile-specific )
-* {application}-{profile}.(properties/yml) (Specific properties that apply to an application-specific  and a profile-specific )
-
-
-
-## Placeholders in Git Search Paths
-Config Server also supports a search path with placeholders for the {application} and {profile}
