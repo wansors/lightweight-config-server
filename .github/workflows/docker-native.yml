@@ -31,5 +31,5 @@ jobs:
           file: ./src/main/docker/Dockerfile.native-multistage
           push: true
           tags: |
-            wansors/lightweight-config-server:${{ GITHUB_RUN_NUMBER }}
+            wansors/lightweight-config-server:${{ env.GITHUB_RUN_NUMBER }}
             wansors/lightweight-config-server:latest
