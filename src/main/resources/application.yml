@@ -5,7 +5,7 @@ quarkus:
   http:
     port: 8888
   application:
-    name: lightweightconfigserver
+    name: lightweight-config-server
   log:
     level: INFO
 quarkusconfigserver:
