@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "jgspascual",
+      "name": "Joan Sabater",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42868269?v=4",
+      "profile": "https://github.com/jgspascual",
+      "contributions": [
+        "test",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "lightweight-config-server",
+  "projectOwner": "wansors",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
