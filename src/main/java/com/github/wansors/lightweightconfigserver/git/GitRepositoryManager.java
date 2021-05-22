@@ -16,6 +16,7 @@ import com.github.wansors.lightweightconfigserver.ConfigRepositoryConfiguration;
 import com.github.wansors.lightweightconfigserver.ConfigurationFileResource;
 import com.github.wansors.lightweightconfigserver.ConfigurationRepository;
 import com.github.wansors.lightweightconfigserver.ConfigurationService;
+import com.github.wansors.lightweightconfigserver.rest.ApiWsException;
 
 import io.quarkus.arc.config.ConfigPrefix;
 import io.quarkus.runtime.StartupEvent;
@@ -75,9 +76,18 @@ public class GitRepositoryManager {
 			String branch = null;
 			if (key != null) {
 				branch = config.getValue(key, String.class);
+				if (branch == null || branch.isEmpty()) {
+					LOG.warn("[MULTI-REPO] key:" + key + " value not found, using default branch");
+				}
 			}
 			GitRepository repository2 = getGitRepository(application, null);
-			files.addAll(repository2.getFiles(application, null, branch));
+			try {
+				files.addAll(repository2.getFiles(application, profile, branch));
+			} catch (ApiWsException e) {
+				// If second multirepository call fails, we do not.
+				LOG.warn("[MULTI-REPO] Unable to serve request from " + repository2.getId() + " with error: "
+						+ e.getMessage());
+			}
 		}
 
 		// Return files
@@ -98,6 +108,7 @@ public class GitRepositoryManager {
 		if (profile != null && !profile.isEmpty()) {
 			for (GitRepository git : repositories.values()) {
 				if (git.matchesPatternProfile(profile)) {
+					LOG.info("[MULTI-REPO] Match for " + application + "/" + profile + " on " + git.getId());
 					return git;
 				}
 			}
@@ -107,17 +118,18 @@ public class GitRepositoryManager {
 		// Step 2: Find the general pattern
 		for (Map.Entry<String, GitRepository> entry : repositories.entrySet()) {
 			if ("*".equals(entry.getKey())) {
-				// Default repository
+				// If no match is found, we return the default one
 				repository = entry.getValue();
 			} else if ((application + "/" + profile).matches(entry.getKey().replace("*", ".*"))) {
 				// TODO Logica la misma que en
 				// https://cloud.spring.io/spring-cloud-config/reference/html/#_pattern_matching_and_multiple_repositories
 				LOG.debug("MATCH KEY: " + entry.getKey());
-				return entry.getValue();
+				repository = entry.getValue();
+				break;
 			}
 		}
 
-		// If no match is found, we return the default one
+		LOG.info("[REPO] Match for " + application + "/" + profile + " on " + repository.getId());
 		return repository;
 
 	}

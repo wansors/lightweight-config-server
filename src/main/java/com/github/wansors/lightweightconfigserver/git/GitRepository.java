@@ -46,7 +46,7 @@ public class GitRepository {
 
 	private void initRepository() {
 		if (!gitRepositoryBranches.containsKey(DEFAULT_KEY)) {
-			LOG.debug("Initializing Repository for " + gitConf.uri);
+			LOG.info("[INIT][START] Repository " + gitConf.uri);
 
 			try {
 				GitRepositoryBranch gitRepositoryBranch = new GitRepositoryBranch(gitConf);
@@ -56,6 +56,7 @@ public class GitRepository {
 			} catch (IOException | GitAPIException e) {
 				LOG.warn("Unable to clone repository " + gitConf.uri, e);
 			}
+			LOG.info("[INIT][END] Repository " + gitConf.uri);
 		}
 
 	}
@@ -89,7 +90,7 @@ public class GitRepository {
 		GitRepositoryBranch defaultGitRepositoryBranch = gitRepositoryBranches.get(DEFAULT_KEY);
 		defaultGitRepositoryBranch.pull();
 
-		if (branchName == null) {
+		if (branchName == null || branchName.isEmpty()) {
 			LOG.debug("Requesting empty branch, returning default");
 			// Return default branch
 			return defaultGitRepositoryBranch.getBranchFolder();
@@ -122,7 +123,8 @@ public class GitRepository {
 					// TAG
 					branchType = "refs/tags/";
 				} else {
-					throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
+					throw new ApiWsException("Branch '" + branchName + "' not found",
+							ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
 				}
 				// First access to the brach
 				GitRepositoryBranch newBranchRepository = defaultGitRepositoryBranch.duplicate(branchName, branchType);
@@ -255,6 +257,10 @@ public class GitRepository {
 	public String getPatternProfileLabelKey() {
 		return gitConf.patternProfileLabelKey;
 
+	}
+
+	public String getId() {
+		return gitConf.uri;
 	}
 
 }
