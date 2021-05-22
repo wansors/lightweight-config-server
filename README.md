@@ -112,6 +112,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
+    <td align="center"><a href="https://github.com/wansors"><img src="https://avatars.githubusercontent.com/u/15862396?v=4?s=100" width="100px;" alt=""/><br /><sub><b>wansors</b></sub></a><br /><a href="https://github.com/wansors/lightweight-config-server/commits?author=wansors" title="Tests">⚠️</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=wansors" title="Code">💻</a></td>
+  </tr>
+  <tr>
     <td align="center"><a href="https://github.com/jgspascual"><img src="https://avatars.githubusercontent.com/u/42868269?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joan Sabater</b></sub></a><br /><a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Tests">⚠️</a> <a href="https://github.com/wansors/lightweight-config-server/commits?author=jgspascual" title="Code">💻</a></td>
   </tr>
 </table>
