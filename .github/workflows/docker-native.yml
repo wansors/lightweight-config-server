@@ -11,6 +11,10 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+      - name: Set Release version env variable
+        run: |
+         echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -31,5 +35,5 @@ jobs:
           file: ./src/main/docker/Dockerfile.native-multistage
           push: true
           tags: |
-            wansors/lightweight-config-server:${{ env.GITHUB_RUN_NUMBER }}
+            wansors/lightweight-config-server:${{ env.RELEASE_VERSION }}
             wansors/lightweight-config-server:latest
