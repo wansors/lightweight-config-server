@@ -9,6 +9,30 @@ Lightweight Config Server implements the same endpoints as Spring Cloud Config S
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework (https://quarkus.io/).
 
+## How it works?
+
+### Request input
+Each request to the config server has 3 parameters:
+* {application} - Required - Determines the application
+* {profile} - Required - Determines the profile
+* {label} - Optional - Determine the Git Branch, if not inform, the default branch is used
+
+### Finding the configuration
+
+For each configuration request, the config server tries to read the following files on the Git repository (From less to more priority):
+
+* 1) application.properties, (General properties that apply to all applications and all profiles)
+* 2) application.yml, (General properties that apply to all applications and all profiles)
+* 3) {application}.properties (Specific properties that apply to an  application-specific and all profiles)
+* 4) {application}.yml (Specific properties that apply to an  application-specific and all profiles)
+* 5) application-{profile}.properties (General properties that apply to all applications and profile-specific )
+* 6) application-{profile}.yml (General properties that apply to all applications and profile-specific )
+* 7) {application}-{profile}.properties (Specific properties that apply to an application-specific  and a profile-specific )
+* 8) {application}-{profile}.yml (Specific properties that apply to an application-specific  and a profile-specific )
+
+### Response output
+With this information the config server find the configuration and merge it in a json or .porperties output.
+
 
 
 ## Features
@@ -19,21 +43,12 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework (https://quar
 
 ### Multirepository configurations - Filter by profile
 It is possible to get a specific configuration from two different repositories.
-Using the pattern-profile configuration, you can set which server will be used to get the first files using the {label}{application}{profile} from the request. Then the config server will look for the config key defined on pattern-profile-label-key and will use it to find the configuration in the other repository, using the value read and application from the previous call, the profile will not be used on the second call.
+Using the pattern-profile configuration, you can set which server will be used to get the first files using the {label}{application}{profile} from the request. Then the config server will look for the config key defined on pattern-profile-label-key and will use it to find the configuration in the other repository, using the value read and application from the previous call.
 
-If the field is not inform or there is no match, this feature will not be active.
+If the config field (pattern-profile) is not inform or there is no match on the request, this feature will not be active.
 
 ### Liveness Probe
 http://localhost:8888/actuator/health
-
-### Config Files preference
-
-With git repositories, resources with file names in application* (application.properties, application.yml, application-*.properties, and so on) are shared between all client applications. You can use resources with these file names to configure global defaults and have them be overridden by application-specific files as necessary.
-
-* application.(properties/yml), (General properties that apply to all applications and all profiles)
-* {application}.(properties/yml) (Specific properties that apply to an  application-specific and all profiles)
-* application-{profile}.(properties/yml) (General properties that apply to all applications and profile-specific )
-* {application}-{profile}.(properties/yml) (Specific properties that apply to an application-specific  and a profile-specific )
 
 ### Placeholders in Git Search Paths
 Config Server also supports a search path with placeholders for the {application} and {profile}
@@ -77,18 +92,6 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ```shell script
 ./mvnw package -Pnative -Dquarkus.native.container-build=true
 ```
-
-You can then execute your native executable with: `./target/quarkus-config-server-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
-
-
-
-
-
-
-
-
 
 
 ### Build docker image
