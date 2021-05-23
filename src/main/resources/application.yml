@@ -6,6 +6,8 @@ quarkus:
     port: 8888
   application:
     name: lightweight-config-server
+  banner:
+    enabled: false
   log:
     level: INFO
 lightweightconfigserver:

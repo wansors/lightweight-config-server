@@ -54,57 +54,21 @@ http://localhost:8888/actuator/health
 Config Server also supports a search path with placeholders for the {application} and {profile}
 
 ## How do I start?
-Easy, just extend the base docker image and copy your configuration in Yaml format on TODO
+Easy, just extend the base docker image and copy your configuration inside it:
 
-
-
-## Delete From Here
-
-### Benchmarks
-Comparison have done with hyness/spring-cloud-config-server
-
-docker run -it -p 8883:8888 -e SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/wansors/spring-cloud-config-samples hyness/spring-cloud-config-server
-
-
-docker stats
-
-
-
-
-### How supersonic is it?
-
-Benchmark | JVM | Native | spring-cloud-config-server 
---- | --- | --- | --- 
-Memory RRS | ~200MB | ~40MB |  ~400MB 
-Boot time | 2 secs | 1sec |  ~16secs 
-Docker size| - | - | - 
-
-
-
-### Creating a native executable
-
-You can create a native executable using: 
-```shell script
-./mvnw package -Pnative
+```Docker
+FROM wansors/lightweight-config-server:latest-native
+COPY --chown=1001:root application.yml config/application.yml
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
-```
+Then, build the image with: `docker build -f Dockerfile.native-custom -t example/lightweight-config-server .`
+
+Then run the container using: `docker run -i --rm -p 8888:8888 example/lightweight-config-server`
 
 
-### Build docker image
+## How supersonic is it?
 
-##### Native
-./mvnw package -Pnative "-Dquarkus.native.container-build=true"
-docker build -f src/main/docker/Dockerfile.native -t quarkus/configserver .
-docker run -i --rm -p 8888:8888  --name quarkusconfigserver-native quarkus/configserver
-
-#### JVM
-./mvnw clean package
-docker build -f src/main/docker/Dockerfile.jvm -t quarkus/configserver-jvm .
-docker run -i --rm -p 8881:8888 --name quarkusconfigserver-jvm quarkus/configserver-jvm
+Thanks to quarkus, Lightweight Config Server native image starts in seconds and with ~100MB of RAM.
 
 ## Contributors ✨
 

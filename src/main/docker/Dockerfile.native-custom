@@ -1,0 +1,14 @@
+####
+# This Dockerfile is used to extend the official image with your configuration.
+# Copy your application.yml on the same level as the Dockerfile
+# Then, build the image with:
+#
+# docker build -f Dockerfile.native-custom -t example/lightweight-config-server .
+#
+# Then run the container using:
+#
+# docker run -i --rm -p 8888:8888 example/lightweight-config-server
+#
+###
+FROM wansors/lightweight-config-server:latest-native
+COPY --chown=1001:root application.yml config/application.yml
