@@ -1,37 +1,68 @@
-## Welcome to GitHub Pages
+# Lightweight Config Server
 
-You can use the [editor on GitHub](https://github.com/wansors/lightweight-config-server/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+Lightweight Config Server is a quarkus based alternative to Spring Cloud Config Server.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Lightweight Config Server implements the same endpoints as Spring Cloud Config Server with the same outputs. However this application boots faster and consume less memory, ideal for k8s environments!.
 
-### Markdown
+This project uses Quarkus, the Supersonic Subatomic Java Framework (https://quarkus.io/).
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## How it works?
 
-```markdown
-Syntax highlighted code block
+### Request input
+Each request to the config server has 3 parameters:
+* {application} - Required - Determines the application
+* {profile} - Required - Determines the profile
+* {label} - Optional - Determine the Git Branch, if not inform, the default branch is used
 
-# Header 1
-## Header 2
-### Header 3
+### Finding the configuration
 
-- Bulleted
-- List
+For each configuration request, the config server tries to read the following files on the Git repository (From less to more priority):
 
-1. Numbered
-2. List
+* 1) application.properties, (General properties that apply to all applications and all profiles)
+* 2) application.yml, (General properties that apply to all applications and all profiles)
+* 3) {application}.properties (Specific properties that apply to an  application-specific and all profiles)
+* 4) {application}.yml (Specific properties that apply to an  application-specific and all profiles)
+* 5) application-{profile}.properties (General properties that apply to all applications and profile-specific )
+* 6) application-{profile}.yml (General properties that apply to all applications and profile-specific )
+* 7) {application}-{profile}.properties (Specific properties that apply to an application-specific  and a profile-specific )
+* 8) {application}-{profile}.yml (Specific properties that apply to an application-specific  and a profile-specific )
 
-**Bold** and _Italic_ and `Code` text
+### Response output
+With this information the config server find the configuration and merge it in a json or .porperties output.
 
-[Link](url) and ![Image](src)
+
+
+## Features
+### Known Limitations vs Spring Cloud Config Server
+- Supports only git repositories
+- No encryption value support
+- No Placeholders in Git URI
+
+### Multirepository configurations - Filter by profile
+It is possible to get a specific configuration from two different repositories.
+Using the pattern-profile configuration, you can set which server will be used to get the first files using the {label}{application}{profile} from the request. Then the config server will look for the config key defined on pattern-profile-label-key and will use it to find the configuration in the other repository, using the value read and application from the previous call.
+
+If the config field (pattern-profile) is not inform or there is no match on the request, this feature will not be active.
+
+### Liveness Probe
+http://localhost:8888/actuator/health
+
+### Placeholders in Git Search Paths
+Config Server also supports a search path with placeholders for the {application} and {profile}
+
+## How do I start?
+Easy, just extend the base docker image and copy your configuration inside it:
+
+```Docker
+FROM wansors/lightweight-config-server:latest-native
+COPY --chown=1001:root application.yml config/application.yml
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Then, build the image with: `docker build -f Dockerfile.native-custom -t example/lightweight-config-server .`
 
-### Jekyll Themes
+Then run the container using: `docker run -i --rm -p 8888:8888 example/lightweight-config-server`
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/wansors/lightweight-config-server/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
 
-### Support or Contact
+## How supersonic is it?
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Thanks to quarkus, Lightweight Config Server native image starts in seconds and with ~100MB of RAM.
