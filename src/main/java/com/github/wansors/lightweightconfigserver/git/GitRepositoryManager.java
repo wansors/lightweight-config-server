@@ -33,7 +33,7 @@ public class GitRepositoryManager {
 	private static final Logger LOG = Logger.getLogger(ConfigurationRepository.class);
 
 	@Inject
-	@ConfigPrefix("quarkusconfigserver.repository")
+	@ConfigPrefix("lightweightconfigserver.repository")
 	ConfigRepositoryConfiguration configResourceConfiguration;
 
 	// Mapa de pattern,gitRepository

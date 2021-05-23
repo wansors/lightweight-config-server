@@ -6,6 +6,12 @@ import java.util.Base64;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import org.jboss.logging.Logger;
@@ -14,13 +20,6 @@ import com.github.wansors.lightweightconfigserver.git.GitRepositoryBranch;
 
 import io.quarkus.arc.config.ConfigPrefix;
 
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-
 @Provider
 @AuthenticationNeeded
 @Priority(Priorities.AUTHENTICATION)
@@ -28,7 +27,7 @@ public class AuthenticationNeededFilter implements ContainerRequestFilter {
 	private static final Logger LOG = Logger.getLogger(GitRepositoryBranch.class);
 
 	@Inject
-	@ConfigPrefix("quarkusconfigserver.security")
+	@ConfigPrefix("lightweightconfigserver.security")
 	SimpleSecurityConfiguration simpleSecurityConfiguration;
 
 	@Override

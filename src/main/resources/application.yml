@@ -8,7 +8,7 @@ quarkus:
     name: lightweight-config-server
   log:
     level: INFO
-quarkusconfigserver:
+lightweightconfigserver:
     security:
         enabled: true
         user: user
