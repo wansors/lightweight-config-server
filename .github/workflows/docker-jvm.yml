@@ -1,4 +1,4 @@
-name: docker-native
+name: docker-jvm
 
 on:
   push:
