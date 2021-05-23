@@ -14,7 +14,13 @@ jobs:
       - name: Set Release version env variable
         run: |
          echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-        
+      - name: Setup Java 11
+        uses: actions/setup-java@v2
+        with:
+         distribution: 'adopt'
+         java-version: '11'     
+      - name: Compiling application
+        run: ./mvnw package   
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -32,8 +38,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./src/main/docker/Dockerfile.native-multistage
+          file: ./src/main/docker/Dockerfile.jvm
           push: true
           tags: |
-            wansors/lightweight-config-server:${{ env.RELEASE_VERSION }}-native
-            wansors/lightweight-config-server:latest-native
+            wansors/lightweight-config-server:${{ env.RELEASE_VERSION }}-jvm
+            wansors/lightweight-config-server:latest-jvm
