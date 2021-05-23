@@ -62,6 +62,8 @@ Then, build the image with: `docker build -f Dockerfile.native-custom -t example
 
 Then run the container using: `docker run -i --rm -p 8888:8888 example/lightweight-config-server`
 
+You can find the latest releases on: https://hub.docker.com/repository/docker/wansors/lightweight-config-server
+
 
 ## How supersonic is it?
 
