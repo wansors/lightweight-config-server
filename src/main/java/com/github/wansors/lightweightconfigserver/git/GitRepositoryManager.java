@@ -71,7 +71,7 @@ public class GitRepositoryManager {
 
 		// Multirepository request
 		if (repository.matchesPatternProfile(profile)) {
-			Config config = ConfigurationService.buildConfig(files);
+			Config config = ConfigurationService.buildConfig(profile, files);
 			String key = repository.getPatternProfileLabelKey();
 			String branch = null;
 			if (key != null) {

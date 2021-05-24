@@ -144,8 +144,7 @@ public class GitRepository {
 		return getFiles(application, profile, label, 0);
 	}
 
-	public List<ConfigurationFileResource> getFiles(String application, String profile, String label,
-			int priorityBase) {
+	public List<ConfigurationFileResource> getFiles(String application, String profile, String label, int priority) {
 
 		File dir = getBranch(label);
 
@@ -153,25 +152,27 @@ public class GitRepository {
 
 		// A) application.(properties(1)/yml(2)),
 		// (General properties that apply to all applications and all profiles)
-		addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, 1, false);
-		addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, YAML_EXTENSION, 2, false);
+		addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, priority + 1, false);
+		addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, YAML_EXTENSION, priority + 2, false);
 
 		// B) {application}.(properties(3)/yml(4))
 		// (Specific properties that apply to an application-specific and all profiles)
-		addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, 3, true);
-		addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, 4, true);
+		addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, priority + 3, true);
+		addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, priority + 4, true);
 
 		if (profile != null) {
 			// C) application-{profile}.(properties(5).yml(6))
 			// (General properties that apply to all applications and profile-specific )
-			addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, 5, false);
-			addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, 6, false);
+			addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, priority + 5,
+					false);
+			addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, priority + 6,
+					false);
 
 			// D) {application}-{profile}.(properties(7)/yml(8))
 			// (Specific properties that apply to an application-specific and a
 			// profile-specific )
-			addConfigurationFileResource(dir, result, application, profile, PROPERTIES_EXTENSION, 7, true);
-			addConfigurationFileResource(dir, result, application, profile, YAML_EXTENSION, 8, true);
+			addConfigurationFileResource(dir, result, application, profile, PROPERTIES_EXTENSION, priority + 7, true);
+			addConfigurationFileResource(dir, result, application, profile, YAML_EXTENSION, priority + 8, true);
 		}
 
 		// Debemos usar el gitConfiguration.destinationDirectory para listar los

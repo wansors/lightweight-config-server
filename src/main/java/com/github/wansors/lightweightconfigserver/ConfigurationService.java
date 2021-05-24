@@ -22,6 +22,7 @@ import org.jboss.logging.Logger;
 import com.github.wansors.lightweightconfigserver.cloudconfig.SpringCloudConfigResponse;
 
 import io.smallrye.config.PropertiesConfigSource;
+import io.smallrye.config.common.MapBackedConfigSource;
 
 @Dependent
 public class ConfigurationService {
@@ -49,7 +50,7 @@ public class ConfigurationService {
 		String className;
 		Iterable<String> propertyNames = config.getPropertyNames();
 		for (String propertyName : propertyNames) {
-			if (!propertyName.startsWith(TYPE_PREFIX)) {
+			if (includeOnResponse(propertyName)) {
 				try {
 					if (StreamSupport.stream(propertyNames.spliterator(), false)
 							.anyMatch(name -> (TYPE_PREFIX + propertyName).equals(name))) {
@@ -89,14 +90,16 @@ public class ConfigurationService {
 	private Config buildConfig(String application, String profile, String label) {
 
 		List<ConfigurationFileResource> list = repository.getConfigurationFiles(application, profile, label);
-		return buildConfig(list);
+		return buildConfig(profile, list);
 	}
 
-	public static Config buildConfig(List<ConfigurationFileResource> list) {
+	public static Config buildConfig(String profile, List<ConfigurationFileResource> list) {
 		ConfigProviderResolver resolver = ConfigProviderResolver.instance();
 		ConfigBuilder builder = resolver.getBuilder();
 
 		List<ConfigSource> sources = new ArrayList<ConfigSource>();
+		// Add base config to filter profile on property level
+		sources.add(buildBaseConfig(profile));
 
 		// Generate Config for the current Request
 		for (ConfigurationFileResource file : list) {
@@ -115,6 +118,20 @@ public class ConfigurationService {
 				.withConverter(String.class, 101, new EmptyStringConverter()).build();
 	}
 
+	private static ConfigSource buildBaseConfig(String profile) {
+		Map<String, String> propertyMap = new HashMap<>();
+		propertyMap.put("mp.config.profile", profile);
+		return new InMemoryConfigSource("base-config", propertyMap, 100);
+	}
+
+	private static final class InMemoryConfigSource extends MapBackedConfigSource {
+
+		public InMemoryConfigSource(String name, Map<String, String> propertyMap, int defaultOrdinal) {
+			super(name, propertyMap, defaultOrdinal);
+		}
+
+	}
+
 	private Map<String, String> generateConf(String application, String profile, String label) {
 		Config config = buildConfig(application, profile, label);
 
@@ -122,7 +139,7 @@ public class ConfigurationService {
 		Map<String, String> map = new HashMap<>();
 		String value;
 		for (String propertyName : config.getPropertyNames()) {
-			if (!propertyName.startsWith(TYPE_PREFIX)) {
+			if (includeOnResponse(propertyName)) {
 				try {
 					value = config.getValue(propertyName, String.class);
 				} catch (Exception e) {
@@ -170,6 +187,18 @@ public class ConfigurationService {
 		}
 
 		return response;
+	}
+
+	/**
+	 * Filters the properties with:<br>
+	 * - Type definition <br>
+	 * - Profile defined
+	 *
+	 * @param propertyName
+	 * @return
+	 */
+	private static boolean includeOnResponse(String propertyName) {
+		return !(propertyName.startsWith(TYPE_PREFIX) || propertyName.startsWith("%"));
 	}
 
 }

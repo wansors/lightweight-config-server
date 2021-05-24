@@ -4,7 +4,11 @@ Lightweight Config Server is a quarkus based alternative to Spring Cloud Config 
 
 Lightweight Config Server implements the same endpoints as Spring Cloud Config Server with the same outputs. However this application boots faster and consume less memory, ideal for k8s environments!.
 
+The core uses https://github.com/smallrye/smallrye-config to generate the configurations.
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework (https://quarkus.io/).
+
+In order to make a transition from spring cloud config server to Lightweight Config Server, the port, the monitoring path, etc are the same that on Spring.
 
 ## How it works?
 
@@ -30,13 +34,33 @@ For each configuration request, the config server tries to read the following fi
 ### Response output
 With this information the config server find the configuration and merge it in a json or .porperties output.
 
-
+	
 
 ## Features
-### Known Limitations vs Spring Cloud Config Server
-- Supports only git repositories
-- No encryption value support
-- No Placeholders in Git URI
+
+### Json and .properties output
+
+Configuration can be obtained in .properties and .json outputs. 
+
+For JSON output, take into account that all configurations read from .properties git files are String. If you want to use other types, you shall use Yaml files.
+
+
+### Same Logic as Microprofile Config 2.0 
+1) Profile support on Property level
+
+```
+%dev.vehicle.name=car
+%live.vehicle.name=train
+%testing.vehicle.name=bike
+vehicle.name=lorry
+```
+
+2) Property Expressions
+
+```
+server.url=http://${server.host:default_value}/endpoint
+server.host=example.org
+```
 
 ### Multirepository configurations - Filter by profile
 It is possible to get a specific configuration from two different repositories.
@@ -49,6 +73,11 @@ http://localhost:8888/actuator/health
 
 ### Placeholders in Git Search Paths
 Config Server also supports a search path with placeholders for the {application} and {profile}
+
+### Known Limitations vs Spring Cloud Config Server
+- Supports only git repositories
+- No encryption value support
+- No Placeholders in Git URI
 
 ## How do I start?
 Easy, just extend the base docker image and copy your configuration inside it:
