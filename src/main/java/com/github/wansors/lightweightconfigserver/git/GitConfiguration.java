@@ -1,64 +1,76 @@
 package com.github.wansors.lightweightconfigserver.git;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
-public class GitConfiguration {
-	public String uri = "";
-	public String username = null;
-	public String password = null;
+public interface GitConfiguration {
+
+	@WithName("username")
+	public Optional<String> username();
+
+	@WithName("uri")
+	public String uri();
+
+	@WithName("password")
+	public Optional<String> password();
 
 	/**
 	 * If repository is enabled
 	 */
-	@ConfigProperty(name = "enabled")
-	public boolean enabled = true;
+	@WithDefault("true")
+	public boolean enabled();
 
 	/**
 	 * force pull from git
 	 */
-	@ConfigProperty(name = "force-pull")
-	public boolean forcePull = true;
+	@WithName("force-pull")
+	@WithDefault("true")
+	public boolean forcePull();
 
 	/**
 	 * refresh rate in seconds until next pull (cache)
 	 */
-	@ConfigProperty(name = "refresh-rate")
-	public int refreshRate = 0;
+	@WithName("refresh-rate")
+	@WithDefault("0")
+	public int refreshRate();
 
 	/**
 	 * Clone repo on start application
 	 */
-	@ConfigProperty(name = "cloneOnStart")
-	public boolean cloneOnStart = true;
+	@WithName("cloneOnStart")
+	@WithDefault("true")
+	public boolean cloneOnStart();
 
 	/**
 	 * Pattern to select which repository to use
 	 */
-	@ConfigProperty(name = "pattern")
-	public String pattern = null;
+	@WithName("pattern")
+	@WithDefault("*")
+	public String pattern();
 
 	/**
 	 * Pattern to select repository for multirepository configurations
 	 */
-	@ConfigProperty(name = "pattern-profile")
-	public String patternProfile = null;
+	@WithName("pattern-profile")
+	public Optional<String> patternProfile();
 
 	/**
 	 * Key used to identify label on multirepository configurations
 	 */
-	@ConfigProperty(name = "pattern-profile-label-key")
-	public String patternProfileLabelKey = null;
+	@WithName("pattern-profile-label-key")
+	public Optional<String> patternProfileLabelKey();
 
 	/**
 	 * Search paths used to obtain files
 	 */
-	@ConfigProperty(name = "searchPaths")
-	public List<String> searchPaths = null;
+	@WithName("searchPaths")
+	public Optional<List<String>> searchPaths();
 
-	public boolean isAuthenticationEnabled() {
-		return password != null;
+	public default boolean isAuthenticationEnabled() {
+		return password() != null;
 	}
 
 }

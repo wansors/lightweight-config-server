@@ -35,7 +35,7 @@ public class GitRepository {
 
 	public GitRepository(GitConfiguration gitConf) {
 		this.gitConf = gitConf;
-		if (gitConf.cloneOnStart) {
+		if (gitConf.cloneOnStart()) {
 			initRepository();
 		}
 	}
@@ -46,7 +46,7 @@ public class GitRepository {
 
 	private void initRepository() {
 		if (!gitRepositoryBranches.containsKey(DEFAULT_KEY)) {
-			LOG.info("[INIT][START] Repository " + gitConf.uri);
+			LOG.info("[INIT][START] Repository " + gitConf.uri());
 
 			try {
 				GitRepositoryBranch gitRepositoryBranch = new GitRepositoryBranch(gitConf);
@@ -54,9 +54,9 @@ public class GitRepository {
 				gitRepositoryBranches.put(DEFAULT_KEY, gitRepositoryBranch);
 				LOG.debug("Storing repository on " + gitRepositoryBranch.getBranchFolder().getAbsolutePath());
 			} catch (IOException | GitAPIException e) {
-				LOG.warn("Unable to clone repository " + gitConf.uri, e);
+				LOG.warn("Unable to clone repository " + gitConf.uri(), e);
 			}
-			LOG.info("[INIT][END] Repository " + gitConf.uri);
+			LOG.info("[INIT][END] Repository " + gitConf.uri());
 		}
 
 	}
@@ -196,9 +196,9 @@ public class GitRepository {
 			if (file.exists()) {
 				// File exists on root
 				list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
-			} else if (searchPath && gitConf.searchPaths != null) {
+			} else if (searchPath && gitConf.searchPaths() != null) {
 				// Search for first match in each searchPath
-				for (String path : gitConf.searchPaths) {
+				for (String path : gitConf.searchPaths().get()) {
 
 					if (path.contains("{application}") && application != null) {
 						path = path.replace("{application}", application);
@@ -251,17 +251,17 @@ public class GitRepository {
 	}
 
 	public boolean matchesPatternProfile(String profile) {
-		return gitConf.patternProfile != null && gitConf.patternProfile.equals(profile);
+		return gitConf.patternProfile() != null && gitConf.patternProfile().equals(profile);
 
 	}
 
 	public String getPatternProfileLabelKey() {
-		return gitConf.patternProfileLabelKey;
+		return gitConf.patternProfileLabelKey().orElse(null);
 
 	}
 
 	public String getId() {
-		return gitConf.uri;
+		return gitConf.uri();
 	}
 
 }

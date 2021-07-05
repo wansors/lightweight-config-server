@@ -1,18 +1,20 @@
 package com.github.wansors.lightweightconfigserver.rest;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import io.quarkus.arc.config.ConfigProperties;
-
-@ConfigProperties
+@ApplicationScoped
 public class SimpleSecurityConfiguration {
-    @ConfigProperty(name = "enabled")
-    public boolean enabled=false;
-
-    @ConfigProperty(name = "user")
-    public String user=null;
-
-    @ConfigProperty(name = "password")
-    public String password=null;
+	@Inject
+	@ConfigProperty(name = "lightweightconfigserver.security.enabled")
+	public boolean enabled = false;
+	@Inject
+	@ConfigProperty(name = "lightweightconfigserver.security.user")
+	public String user = null;
+	@Inject
+	@ConfigProperty(name = "lightweightconfigserver.security.password")
+	public String password = null;
 
 }

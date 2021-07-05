@@ -4,20 +4,22 @@ import java.util.List;
 
 import com.github.wansors.lightweightconfigserver.git.GitConfiguration;
 
-import io.quarkus.arc.config.ConfigProperties;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithParentName;
 
-@ConfigProperties
-public class ConfigRepositoryConfiguration {
+@ConfigMapping(prefix = "lightweightconfigserver.repository.git")
+public interface ConfigRepositoryConfiguration {
 
-    public List<GitConfiguration> git;
+	@WithParentName
+	public List<GitConfiguration> git();
 
-    public int enabledRepositories() {
-        int enabled = 0;
-        for (GitConfiguration gitConfiguration : git) {
-            if (gitConfiguration.enabled) {
-                enabled++;
-            }
-        }
-        return enabled;
-    }
+	public default int enabledRepositories() {
+		int enabled = 0;
+		for (GitConfiguration gitConfiguration : git()) {
+			if (gitConfiguration.enabled()) {
+				enabled++;
+			}
+		}
+		return enabled;
+	}
 }

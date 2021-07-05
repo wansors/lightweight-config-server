@@ -18,7 +18,6 @@ import com.github.wansors.lightweightconfigserver.ConfigurationRepository;
 import com.github.wansors.lightweightconfigserver.ConfigurationService;
 import com.github.wansors.lightweightconfigserver.rest.ApiWsException;
 
-import io.quarkus.arc.config.ConfigPrefix;
 import io.quarkus.runtime.StartupEvent;
 
 /**
@@ -33,7 +32,6 @@ public class GitRepositoryManager {
 	private static final Logger LOG = Logger.getLogger(ConfigurationRepository.class);
 
 	@Inject
-	@ConfigPrefix("lightweightconfigserver.repository")
 	ConfigRepositoryConfiguration configResourceConfiguration;
 
 	// Mapa de pattern,gitRepository
@@ -46,14 +44,9 @@ public class GitRepositoryManager {
 		// Init all repos if needed (cloneOnStart==true)
 		// recorrer los objetos de configuracion
 		// Agregar dichos repositories al mapa repositories
-		for (GitConfiguration gitConfiguration : configResourceConfiguration.git) {
-			if (gitConfiguration.enabled) {
-				String key;
-				if (null == gitConfiguration.pattern) {
-					key = "*";
-				} else {
-					key = gitConfiguration.pattern;
-				}
+		for (GitConfiguration gitConfiguration : configResourceConfiguration.git()) {
+			if (gitConfiguration.enabled()) {
+				String key = gitConfiguration.pattern();
 
 				GitRepository repository = new GitRepository(gitConfiguration);
 				if (repository.isReady()) {

@@ -18,8 +18,6 @@ import org.jboss.logging.Logger;
 
 import com.github.wansors.lightweightconfigserver.git.GitRepositoryBranch;
 
-import io.quarkus.arc.config.ConfigPrefix;
-
 @Provider
 @AuthenticationNeeded
 @Priority(Priorities.AUTHENTICATION)
@@ -27,7 +25,6 @@ public class AuthenticationNeededFilter implements ContainerRequestFilter {
 	private static final Logger LOG = Logger.getLogger(GitRepositoryBranch.class);
 
 	@Inject
-	@ConfigPrefix("lightweightconfigserver.security")
 	SimpleSecurityConfiguration simpleSecurityConfiguration;
 
 	@Override
