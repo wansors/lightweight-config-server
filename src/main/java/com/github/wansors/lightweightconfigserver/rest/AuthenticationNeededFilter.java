@@ -1,46 +1,44 @@
 package com.github.wansors.lightweightconfigserver.rest;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 
-import javax.annotation.Priority;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Provider;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import com.github.wansors.lightweightconfigserver.git.GitRepositoryBranch;
 
-@Provider
-@AuthenticationNeeded
-@Priority(Priorities.AUTHENTICATION)
-public class AuthenticationNeededFilter implements ContainerRequestFilter {
+@RequestScoped
+public class AuthenticationNeededFilter {
 	private static final Logger LOG = Logger.getLogger(GitRepositoryBranch.class);
 
 	@Inject
-	SimpleSecurityConfiguration simpleSecurityConfiguration;
+	@ConfigProperty(name = "lightweightconfigserver.security.enabled", defaultValue = "false")
+	boolean enabled;
+	@Inject
+	@ConfigProperty(name = "lightweightconfigserver.security.user")
+	Optional<String> user;
+	@Inject
+	@ConfigProperty(name = "lightweightconfigserver.security.password")
+	Optional<String> password;
 
-	@Override
-	public void filter(ContainerRequestContext requestContext) throws IOException {
-		if (!simpleSecurityConfiguration.enabled) {
+	// Get the HTTP Authorization header from the request
+
+	public void filter(String authorizationHeader) {
+
+		if (!enabled) {
 			LOG.info("Security is disabled");
 			return;
 		}
 
-		// Get the HTTP Authorization header from the request
-		String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-
 		// Check if the HTTP Authorization header is present and formatted correctly
 		if ((authorizationHeader == null || !authorizationHeader.startsWith("Basic "))) {
 			LOG.debug("Invalid authorizationHeader : " + authorizationHeader);
-			throw new NotAuthorizedException("Authorization header must be provided");
+			throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNAUTHORIZED);
 		}
 
 		// Extract the token from the HTTP Authorization header
@@ -51,13 +49,12 @@ public class AuthenticationNeededFilter implements ContainerRequestFilter {
 		// credentials = username:password
 		final String[] values = credentials.split(":", 2);
 
-		if (values[0].equals(simpleSecurityConfiguration.user.get())
-				&& values[1].equals(simpleSecurityConfiguration.password.get())) {
+		if (values[0].equals(user.get()) && values[1].equals(password.get())) {
 			LOG.debug("Valid authentication");
 
 		} else {
 			LOG.debug("Invalid authentication: " + token);
-			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+			throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNAUTHORIZED);
 		}
 
 	}
