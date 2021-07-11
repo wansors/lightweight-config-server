@@ -22,12 +22,12 @@ lightweightconfigserver:
           force-pull: true
           pattern-profile: foo
           pattern-profile-label-key: external.repo.branch
-          searchPaths:
+          search-paths:
             - '{profile}'
         - uri: https://github.com/wansors/lightweight-config-server-samples2.git
           refresh-rate: 15
           force-pull: false
           pattern: 'multirepo*'
-          searchPaths:
+          search-paths:
             - common
             - '{profile}'

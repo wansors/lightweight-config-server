@@ -66,11 +66,11 @@ public interface GitConfiguration {
 	/**
 	 * Search paths used to obtain files
 	 */
-	@WithName("searchPaths")
+	// @WithName("searchPaths")
 	public Optional<List<String>> searchPaths();
 
 	public default boolean isAuthenticationEnabled() {
-		return password() != null;
+		return password().isPresent();
 	}
 
 }

@@ -30,7 +30,7 @@ public class AuthenticationNeededFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		if (!simpleSecurityConfiguration.enabled) {
-			LOG.debug("Security is disabled");
+			LOG.info("Security is disabled");
 			return;
 		}
 
@@ -51,8 +51,8 @@ public class AuthenticationNeededFilter implements ContainerRequestFilter {
 		// credentials = username:password
 		final String[] values = credentials.split(":", 2);
 
-		if (values[0].equals(simpleSecurityConfiguration.user)
-				&& values[1].equals(simpleSecurityConfiguration.password)) {
+		if (values[0].equals(simpleSecurityConfiguration.user.get())
+				&& values[1].equals(simpleSecurityConfiguration.password.get())) {
 			LOG.debug("Valid authentication");
 
 		} else {
