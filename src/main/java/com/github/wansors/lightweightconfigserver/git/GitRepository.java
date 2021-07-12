@@ -196,7 +196,7 @@ public class GitRepository {
 			if (file.exists()) {
 				// File exists on root
 				list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
-			} else if (searchPath && gitConf.searchPaths() != null) {
+			} else if (searchPath && gitConf.searchPaths().isPresent()) {
 				// Search for first match in each searchPath
 				for (String path : gitConf.searchPaths().get()) {
 
@@ -251,7 +251,7 @@ public class GitRepository {
 	}
 
 	public boolean matchesPatternProfile(String profile) {
-		return gitConf.patternProfile() != null && gitConf.patternProfile().equals(profile);
+		return gitConf.patternProfile().isPresent() && gitConf.patternProfile().get().equals(profile);
 
 	}
 
