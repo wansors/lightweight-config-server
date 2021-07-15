@@ -18,6 +18,7 @@ import org.jboss.logging.Logger;
 
 import com.github.wansors.lightweightconfigserver.rest.AuthenticationNeededFilter;
 import com.github.wansors.lightweightconfigserver.utils.MapConverter;
+import com.github.wansors.lightweightconfigserver.utils.MediaTypeDetector;
 
 import io.vertx.core.http.HttpServerRequest;
 
@@ -92,16 +93,22 @@ public class ConfigurationResource {
 	}
 
 	@GET
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	@Path("/{application}/{profile}/{label}/{filePath:.*}")
 	public Response getPlainTextFile(@PathParam("label") String label, @PathParam("application") String application,
 			@PathParam("profile") String profile, @PathParam("filePath") String filePath) {
 		checkAuth();
-		LOG.debug("Requesting plain text file " + filePath);
 		File file = service.getPlainTextFile(label, application, profile, filePath);
-		return Response.ok(file, MediaType.APPLICATION_OCTET_STREAM)
-				.header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"") // optional
-				.build();
+		MediaType type = MediaTypeDetector.getMediaType(file);
+		LOG.info("Requesting plain text file " + filePath + " with type " + type);
+		if (type.equals(MediaType.APPLICATION_OCTET_STREAM_TYPE)) {
+			// Save as
+			return Response.ok(file).type(type)
+					.header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"") // optional
+					.build();
+		} else {
+			return Response.ok(file).type(type).build();
+
+		}
 	}
 
 	private void checkAuth() {
