@@ -1,7 +1,9 @@
 package com.github.wansors.lightweightconfigserver.cloudconfig;
 
 import java.util.Map;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
+@RegisterForReflection
 public class PropertySource {
 	private String name;
 	private Map<String, String> source;
