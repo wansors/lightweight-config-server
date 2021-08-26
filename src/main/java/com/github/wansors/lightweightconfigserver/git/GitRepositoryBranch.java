@@ -68,7 +68,7 @@ public class GitRepositoryBranch {
 
 		if (shouldPull()) {
 			lastRefresh = System.currentTimeMillis();
-			LOG.debug("Pulling repository");
+			LOG.info("[REPO] Pulling repository " + gitConf.uri());
 			try (Git git = Git.open(branchFolder)) {
 				if (gitConf.isAuthenticationEnabled()) {
 					git.pull().setCredentialsProvider(new UsernamePasswordCredentialsProvider(

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +122,7 @@ public class ConfigurationService {
 	private static ConfigSource buildBaseConfig(String profile) {
 		Map<String, String> propertyMap = new HashMap<>();
 		propertyMap.put("mp.config.profile", profile);
+		propertyMap.put("mp.config.date", new Date().toString());
 		return new InMemoryConfigSource("base-config", propertyMap, 100);
 	}
 
