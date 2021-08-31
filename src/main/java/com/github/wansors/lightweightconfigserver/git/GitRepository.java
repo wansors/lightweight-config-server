@@ -123,7 +123,7 @@ public class GitRepository {
 		    // TAG
 		    branchType = "refs/tags/";
 		} else {
-		    LOG.warnv("Branch {} not found", branchName);
+		    LOG.warn("Branch " + branchName + " not found");
 		    throw new ApiWsException("Branch '" + branchName + "' not found", ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
 		}
 		// First access to the brach
