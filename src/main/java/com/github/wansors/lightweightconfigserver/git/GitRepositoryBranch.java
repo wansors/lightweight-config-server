@@ -49,7 +49,7 @@ public class GitRepositoryBranch {
     }
 
     protected boolean shouldPull() {
-	return this.gitConf.refreshRate() > 0 && System.currentTimeMillis() - this.lastRefresh < this.gitConf.refreshRate() * 1000;
+	return !(this.gitConf.refreshRate() > 0 && System.currentTimeMillis() - this.lastRefresh < this.gitConf.refreshRate() * 1000);
     }
 
     public File getBranchFolder() {
