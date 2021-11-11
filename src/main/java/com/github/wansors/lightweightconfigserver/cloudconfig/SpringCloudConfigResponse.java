@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
+@RegisterForReflection
 public class SpringCloudConfigResponse {
 	private String name;
 	private List<String> profiles =new ArrayList<>();

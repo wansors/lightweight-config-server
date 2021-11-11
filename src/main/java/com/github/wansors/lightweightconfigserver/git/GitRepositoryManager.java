@@ -61,6 +61,8 @@ public class GitRepositoryManager {
 		// Find which repository should be used
 		GitRepository repository = getGitRepository(application, profile);
 		List<ConfigurationFileResource> files = repository.getFiles(application, profile, label, 10);
+		LOG.info("[REPO] Adding files for " + application + "/" + profile + " on " + repository.getId()
+				+ " with branch " + label);
 
 		// Multirepository request
 		if (repository.matchesPatternProfile(profile)) {
@@ -76,6 +78,8 @@ public class GitRepositoryManager {
 			GitRepository repository2 = getGitRepository(application, null);
 			try {
 				files.addAll(repository2.getFiles(application, profile, branch));
+				LOG.info("[MULTI-REPO] Adding files for " + application + "/" + profile + " on " + repository2.getId()
+						+ " with branch " + branch);
 			} catch (ApiWsException e) {
 				// If second multirepository call fails, we do not.
 				LOG.warn("[MULTI-REPO] Unable to serve request from " + repository2.getId() + " with error: "
@@ -120,7 +124,6 @@ public class GitRepositoryManager {
 			}
 		}
 
-		LOG.info("[REPO] Match for " + application + "/" + profile + " on " + repository.getId());
 		return repository;
 
 	}
