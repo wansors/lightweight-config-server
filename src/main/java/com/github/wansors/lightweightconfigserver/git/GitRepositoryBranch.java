@@ -20,6 +20,8 @@ public class GitRepositoryBranch {
      */
     private long lastRefresh = 0;
 
+    private boolean branchType = true;
+
     // Internal values
     private File branchFolder;
 
@@ -29,9 +31,10 @@ public class GitRepositoryBranch {
 	this.gitConf = gitConf;
     }
 
-    public GitRepositoryBranch(File branchFolder, GitConfiguration gitConf) {
+    public GitRepositoryBranch(File branchFolder, GitConfiguration gitConf, boolean branchType) {
 	this.branchFolder = branchFolder;
 	this.gitConf = gitConf;
+	this.branchType = branchType;
     }
 
     public void init() throws IOException, GitAPIException {
@@ -49,7 +52,7 @@ public class GitRepositoryBranch {
     }
 
     protected boolean shouldPull() {
-	return !(this.gitConf.refreshRate() > 0 && System.currentTimeMillis() - this.lastRefresh < this.gitConf.refreshRate() * 1000);
+	return !(this.gitConf.refreshRate() > 0 && System.currentTimeMillis() - this.lastRefresh < this.gitConf.refreshRate() * 1000) && this.branchType;
     }
 
     public File getBranchFolder() {
@@ -81,9 +84,10 @@ public class GitRepositoryBranch {
 	return Git.open(this.branchFolder);
     }
 
-    public GitRepositoryBranch duplicate(String branchName, String type) {
+    public GitRepositoryBranch duplicate(String branchName, boolean branchType) {
 	File tmpDestinationDirectory = null;
 	try {
+	    String type = branchType ? "refs/remotes/origin/" : "refs/tags/";
 
 	    // Duplicate current dir
 	    tmpDestinationDirectory = Files.createTempDirectory("tmpgit").toFile();
@@ -103,7 +107,7 @@ public class GitRepositoryBranch {
 	    LOG.error(e);
 	    throw new ApiWsException(ErrorTypeCodeEnum.REQUEST_UNDEFINED_ERROR, e);
 	}
-	return new GitRepositoryBranch(tmpDestinationDirectory, this.gitConf);
+	return new GitRepositoryBranch(tmpDestinationDirectory, this.gitConf, branchType);
 
     }
 }

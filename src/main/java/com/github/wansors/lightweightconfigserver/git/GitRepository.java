@@ -114,14 +114,14 @@ public class GitRepository {
 		file = gitRepositoryBranch.getBranchFolder();
 	    } else {
 		LOG.debug("Branch " + branchName + " is not cloned");
-		String branchType;
+		boolean branchType;
 		if (this.containsBranch(branchName)) {
 		    // BRANCH
-		    branchType = "refs/remotes/origin/";
+		    branchType = true;
 
 		} else if (this.containsTag(branchName)) {
 		    // TAG
-		    branchType = "refs/tags/";
+		    branchType = false;
 		} else {
 		    LOG.warn("Branch " + branchName + " not found");
 		    throw new ApiWsException("Branch '" + branchName + "' not found", ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
