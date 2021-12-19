@@ -10,6 +10,8 @@ quarkus:
     enabled: false
   log:
     level: INFO
+  application:
+    version: test
 lightweightconfigserver:
     security:
         enabled: false

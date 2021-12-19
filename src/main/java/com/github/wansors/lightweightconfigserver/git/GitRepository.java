@@ -251,13 +251,13 @@ public class GitRepository {
 	return this.gitRepositoryBranches.size() != 0;
     }
 
-    public boolean matchesPatternProfile(String profile) {
-	return this.gitConf.patternProfile().isPresent() && this.gitConf.patternProfile().get().equals(profile);
+    public boolean isMultirepositoryAllowOverwrite() {
+	return this.gitConf.multirepositoryAllowOverwrite();
 
     }
 
-    public String getPatternProfileLabelKey() {
-	return this.gitConf.patternProfileLabelKey().orElse(null);
+    public String getMultirepositoryOverwriteLabelKey() {
+	return this.gitConf.multirepositoryOverwriteLabelKey().orElse(null);
 
     }
 

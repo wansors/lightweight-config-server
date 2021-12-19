@@ -1,6 +1,7 @@
 package com.github.wansors.lightweightconfigserver.git;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.eclipse.microprofile.config.Config;
 import org.jboss.logging.Logger;
 
 import com.github.wansors.lightweightconfigserver.ConfigRepositoryConfiguration;
@@ -29,116 +29,113 @@ import io.quarkus.runtime.StartupEvent;
 
 @ApplicationScoped
 public class GitRepositoryManager {
-	private static final Logger LOG = Logger.getLogger(ConfigurationRepository.class);
+    private static final Logger LOG = Logger.getLogger(ConfigurationRepository.class);
 
-	@Inject
-	ConfigRepositoryConfiguration configResourceConfiguration;
+    @Inject
+    ConfigRepositoryConfiguration configResourceConfiguration;
 
-	// Mapa de pattern,gitRepository
-	private Map<String, GitRepository> repositories;
+    // Mapa de pattern,gitRepository
+    private Map<String, GitRepository> repositories;
 
-	void onStart(@Observes StartupEvent ev) {
-		LOG.debug("The application is starting...");
-		repositories = new HashMap<>();
+    void onStart(@Observes StartupEvent ev) {
+	LOG.debug("The application is starting...");
+	this.repositories = new HashMap<>();
 
-		// Init all repos if needed (cloneOnStart==true)
-		// recorrer los objetos de configuracion
-		// Agregar dichos repositories al mapa repositories
-		for (GitConfiguration gitConfiguration : configResourceConfiguration.git()) {
-			if (gitConfiguration.enabled()) {
-				String key = gitConfiguration.pattern();
+	// Init all repos if needed (cloneOnStart==true)
+	// recorrer los objetos de configuracion
+	// Agregar dichos repositories al mapa repositories
+	for (GitConfiguration gitConfiguration : this.configResourceConfiguration.git()) {
+	    if (gitConfiguration.enabled()) {
+		String key = gitConfiguration.pattern();
 
-				GitRepository repository = new GitRepository(gitConfiguration);
-				if (repository.isReady()) {
-					repositories.put(key, repository);
-				}
-			}
+		GitRepository repository = new GitRepository(gitConfiguration);
+		if (repository.isReady()) {
+		    this.repositories.put(key, repository);
+		}
+	    }
+	}
+
+    }
+
+    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) {
+	// Find which repository should be used
+	var repository = this.getGitRepository(application, profile, null);
+	List<ConfigurationFileResource> files = new ArrayList<>();
+	if (repository == null) {
+	    return files;
+	}
+	String branch = label;
+
+	// Multirepository request
+	if (repository.isMultirepositoryAllowOverwrite()) {
+	    var repositoryThatOverwrites = this.getGitRepository(application, profile, repository.getId());
+	    if (repositoryThatOverwrites != null) {
+		try {
+		    files.addAll(repositoryThatOverwrites.getFiles(application, profile, branch, 10));
+		    LOG.info("[MULTI-REPO] Adding files for " + application + "/" + profile + " on " + repositoryThatOverwrites.getId() + " with branch " + branch);
+		} catch (ApiWsException e) {
+		    // If second multirepository call fails, we do not.
+		    LOG.warn("[MULTI-REPO] Unable to serve request from " + repositoryThatOverwrites.getId() + " with error: " + e.getMessage());
 		}
 
+		// Obtain which branch has to be used on overwritten repository
+		var config = ConfigurationService.buildConfig(profile, files);
+		String key = repository.getMultirepositoryOverwriteLabelKey();
+		if (key != null) {
+		    branch = config.getValue(key, String.class);
+		    if (branch == null || branch.isEmpty()) {
+			LOG.warn("[MULTI-REPO] key:" + key + " value not found, using request branch");
+		    }
+		}
+	    }
 	}
+	LOG.info("[REPO] Adding files for " + application + "/" + profile + " on " + repository.getId() + " with branch " + branch);
+	files.addAll(repository.getFiles(application, profile, branch));
 
-	public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) {
-		// Find which repository should be used
-		GitRepository repository = getGitRepository(application, profile);
-		List<ConfigurationFileResource> files = repository.getFiles(application, profile, label, 10);
-		LOG.info("[REPO] Adding files for " + application + "/" + profile + " on " + repository.getId()
-				+ " with branch " + label);
+	return files;
+    }
 
-		// Multirepository request
-		if (repository.matchesPatternProfile(profile)) {
-			Config config = ConfigurationService.buildConfig(profile, files);
-			String key = repository.getPatternProfileLabelKey();
-			String branch = null;
-			if (key != null) {
-				branch = config.getValue(key, String.class);
-				if (branch == null || branch.isEmpty()) {
-					LOG.warn("[MULTI-REPO] key:" + key + " value not found, using default branch");
-				}
-			}
-			GitRepository repository2 = getGitRepository(application, null);
-			try {
-				files.addAll(repository2.getFiles(application, profile, branch));
-				LOG.info("[MULTI-REPO] Adding files for " + application + "/" + profile + " on " + repository2.getId()
-						+ " with branch " + branch);
-			} catch (ApiWsException e) {
-				// If second multirepository call fails, we do not.
-				LOG.warn("[MULTI-REPO] Unable to serve request from " + repository2.getId() + " with error: "
-						+ e.getMessage());
-			}
+    /**
+     * Looks at the diferent gits and return the one matching the request
+     *
+     * @param application
+     * @param profile
+     * @return
+     */
+    private GitRepository getGitRepository(String application, String profile, String currentRepoId) {
+	GitRepository repository = null;
+
+	// Find the pattern
+	for (Map.Entry<String, GitRepository> entry : this.repositories.entrySet()) {
+	    if ("*".equals(entry.getKey())) {
+		// If no match is found, we return the default one
+		repository = entry.getValue();
+	    } else if ((application + "/" + profile).matches(entry.getKey().replace("*", ".*"))) {
+		var r = entry.getValue();
+		LOG.debug("MATCH KEY: " + entry.getKey());
+		if (currentRepoId == null || !r.getId().equals(currentRepoId)) {
+		    repository = r;
+		    break;
 		}
 
-		// Return files
-		return files;
+	    }
 	}
 
-	/**
-	 * Looks at the diferent gits and return the one matching the request
-	 *
-	 * @param application
-	 * @param profile
-	 * @return
-	 */
-	private GitRepository getGitRepository(String application, String profile) {
-		GitRepository repository = null;
+	return repository;
 
-		// Step 1: Find if the repository matches the profile pattern
-		if (profile != null && !profile.isEmpty()) {
-			for (GitRepository git : repositories.values()) {
-				if (git.matchesPatternProfile(profile)) {
-					LOG.info("[MULTI-REPO] Match for " + application + "/" + profile + " on " + git.getId());
-					return git;
-				}
-			}
+    }
 
-		}
+    public File getPlainTextFile(String label, String application, String profile, String path) {
+	return this.getGitRepository(application, profile, null).getPlainTextFile(label, path);
+    }
 
-		// Step 2: Find the general pattern
-		for (Map.Entry<String, GitRepository> entry : repositories.entrySet()) {
-			if ("*".equals(entry.getKey())) {
-				// If no match is found, we return the default one
-				repository = entry.getValue();
-			} else if ((application + "/" + profile).matches(entry.getKey().replace("*", ".*"))) {
-				LOG.debug("MATCH KEY: " + entry.getKey());
-				repository = entry.getValue();
-				break;
-			}
-		}
-
-		return repository;
-
-	}
-
-	public File getPlainTextFile(String label, String application, String profile, String path) {
-		return getGitRepository(application, profile).getPlainTextFile(label, path);
-	}
-
-	/**
-	 * Inform if repository manager is ready
-	 *
-	 * @return
-	 */
-	public boolean isReady() {
-		return repositories != null && repositories.size() == configResourceConfiguration.enabledRepositories();
-	}
+    /**
+     * Inform if repository manager is ready
+     *
+     * @return
+     */
+    public boolean isReady() {
+	return this.repositories != null && this.repositories.size() == this.configResourceConfiguration.enabledRepositories();
+    }
 
 }

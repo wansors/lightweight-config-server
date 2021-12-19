@@ -8,69 +8,71 @@ import io.smallrye.config.WithName;
 
 public interface GitConfiguration {
 
-	@WithName("username")
-	public Optional<String> username();
+    @WithName("username")
+    public Optional<String> username();
 
-	@WithName("uri")
-	public String uri();
+    @WithName("uri")
+    public String uri();
 
-	@WithName("password")
-	public Optional<String> password();
+    @WithName("password")
+    public Optional<String> password();
 
-	/**
-	 * If repository is enabled
-	 */
-	@WithDefault("true")
-	public boolean enabled();
+    /**
+     * If repository is enabled
+     */
+    @WithDefault("true")
+    public boolean enabled();
 
-	/**
-	 * force pull from git
-	 */
-	@WithName("force-pull")
-	@WithDefault("true")
-	public boolean forcePull();
+    /**
+     * force pull from git
+     */
+    @WithName("force-pull")
+    @WithDefault("true")
+    public boolean forcePull();
 
-	/**
-	 * refresh rate in seconds until next pull (cache)
-	 */
-	@WithName("refresh-rate")
-	@WithDefault("0")
-	public int refreshRate();
+    /**
+     * refresh rate in seconds until next pull (cache)
+     */
+    @WithName("refresh-rate")
+    @WithDefault("0")
+    public int refreshRate();
 
-	/**
-	 * Clone repo on start application
-	 */
-	@WithName("cloneOnStart")
-	@WithDefault("true")
-	public boolean cloneOnStart();
+    /**
+     * Clone repo on start application
+     */
+    @WithName("cloneOnStart")
+    @WithDefault("true")
+    public boolean cloneOnStart();
 
-	/**
-	 * Pattern to select which repository to use
-	 */
-	@WithName("pattern")
-	@WithDefault("*")
-	public String pattern();
+    /**
+     * Pattern to select which repository to use
+     */
+    @WithName("pattern")
+    @WithDefault("*")
+    public String pattern();
 
-	/**
-	 * Pattern to select repository for multirepository configurations
-	 */
-	@WithName("pattern-profile")
-	public Optional<String> patternProfile();
+    /**
+     * Indicates if the repository files can be overwritten with another
+     * repository, match
+     */
+    @WithName("multirepository-allow-overwrite")
+    @WithDefault("false")
+    public boolean multirepositoryAllowOverwrite();
 
-	/**
-	 * Key used to identify label on multirepository configurations
-	 */
-	@WithName("pattern-profile-label-key")
-	public Optional<String> patternProfileLabelKey();
+    /**
+     * Key used to identify label (branch) for second repository
+     */
+    @WithName("multirepository-overwrite-label-key")
+    public Optional<String> multirepositoryOverwriteLabelKey();
 
-	/**
-	 * Search paths used to obtain files
-	 */
-	// @WithName("searchPaths")
-	public Optional<List<String>> searchPaths();
+    /**
+     * Search paths used to obtain files
+     */
+    // @WithName("searchPaths")
+    public Optional<List<String>> searchPaths();
 
-	public default boolean isAuthenticationEnabled() {
-		return password().isPresent();
-	}
+    public default boolean isAuthenticationEnabled() {
+	return this.password().isPresent();
+    }
 
 }

@@ -62,11 +62,9 @@ server.url=http://${server.host:default_value}/endpoint
 server.host=example.org
 ```
 
-### Multirepository configurations - Filter by profile
+### Multirepository configurations
 It is possible to get a specific configuration from two different repositories.
-Using the pattern-profile configuration, you can set which server will be used to get the first files using the {label}{application}{profile} from the request. Then the config server will look for the config key defined on pattern-profile-label-key and will use it to find the configuration in the other repository, using the value read and application from the previous call.
-
-If the config field (pattern-profile) is not inform or there is no match on the request, this feature will not be active.
+Using the multirepository-allow-overwrite configuration, you can set which server will allow to be overwritten by additional servers. Then the config server will look for the config key defined on ultirepository-overwrite-label-key and will use it to find the configuration in the other repository, using the value read and application from the previous call.
 
 ### Liveness Probe
 http://localhost:8888/actuator/health
