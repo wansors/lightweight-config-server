@@ -77,6 +77,20 @@ http://localhost:8888/actuator/health
 ### Placeholders in Git Search Paths
 Config Server also supports a search path with placeholders for the {application} and {profile}
 
+### Use username/password or private key to access GIT
+You can decide to use username and password or a private key to access GIT repositories.
+When using private key, generate it with: ssh-keygen -t rsa -m PEM.
+Then you can put the private file path on "private-key-path" inside the repository configuration
+
+### How to avoid property expressions resolutions.
+
+In order to avoid that the server resolves ${foo} expressions, and leaves them without processing, it can be done adding:
+
+```
+mp.config.property.expressions.enabled=false
+```
+ to the properties file
+
 ### Known Limitations vs Spring Cloud Config Server
 - Supports only git repositories
 - No encryption value support
@@ -90,9 +104,11 @@ FROM wansors/lightweight-config-server:latest-native
 COPY --chown=1001:root application.yml config/application.yml
 ```
 
-Then, build the image with: `docker build -f Dockerfile.native-custom -t example/lightweight-config-server .`
+Then, build the JVM image with: `docker build -f Dockerfile.native-custom -t example/lightweight-config-server:jvm .`
+Then, build the native image with: `docker build -f src/main/docker/Dockerfile.native-multistage -t example/lightweight-config-server:native .`
 
 Then run the container using: `docker run -i --rm -p 8888:8888 example/lightweight-config-server`
+
 
 You can find the latest releases on: https://hub.docker.com/repository/docker/wansors/lightweight-config-server
 

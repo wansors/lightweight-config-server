@@ -72,6 +72,21 @@ http://localhost:8888/actuator/health
 ### Placeholders in Git Search Paths
 Config Server also supports a search path with placeholders for the {application} and {profile}
 
+### Use username/password or private key to access GIT
+You can decide to use username and password or a private key to access GIT repositories.
+When using private key, generate it with: ssh-keygen -t rsa -m PEM.
+Then you can put the private file path on "private-key-path" inside the repository configuration
+
+### How to avoid property expressions resolutions.
+
+In order to avoid that the server resolves ${foo} expressions, and leaves them without processing, it can be done adding:
+
+```
+mp.config.property.expressions.enabled=false
+```
+
+ to the properties file
+
 ### Known Limitations vs Spring Cloud Config Server
 - Supports only git repositories
 - No encryption value support

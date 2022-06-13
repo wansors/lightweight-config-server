@@ -17,6 +17,9 @@ public interface GitConfiguration {
     @WithName("password")
     public Optional<String> password();
 
+    @WithName("private-key-path")
+    public Optional<String> privateKeyPath();
+
     /**
      * If repository is enabled
      */
@@ -71,8 +74,12 @@ public interface GitConfiguration {
     // @WithName("searchPaths")
     public Optional<List<String>> searchPaths();
 
-    public default boolean isAuthenticationEnabled() {
+    public default boolean isBasicAuthenticationEnabled() {
 	return this.password().isPresent();
+    }
+
+    public default boolean isAuthenticationEnabled() {
+	return this.privateKeyPath().isPresent();
     }
 
 }

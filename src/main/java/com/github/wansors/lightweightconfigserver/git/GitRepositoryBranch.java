@@ -3,15 +3,26 @@ package com.github.wansors.lightweightconfigserver.git;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.SshSessionFactory;
+import org.eclipse.jgit.transport.SshTransport;
+import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.ssh.jsch.OpenSshConfig.Host;
+import org.eclipse.jgit.util.FS;
 import org.jboss.logging.Logger;
 
 import com.github.wansors.lightweightconfigserver.rest.ApiWsException;
 import com.github.wansors.lightweightconfigserver.rest.ErrorTypeCodeEnum;
 import com.github.wansors.lightweightconfigserver.utils.FileUtils;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 public class GitRepositoryBranch {
     private static final Logger LOG = Logger.getLogger(GitRepositoryBranch.class);
@@ -43,12 +54,44 @@ public class GitRepositoryBranch {
 	    var cloneCommand = Git.cloneRepository();
 	    cloneCommand.setDirectory(this.branchFolder).setCloneAllBranches(true).setURI(this.gitConf.uri());
 	    if (this.gitConf.isAuthenticationEnabled()) {
+		cloneCommand.setTransportConfigCallback(new TransportConfigCallback() {
+		    @Override
+		    public void configure(Transport transport) {
+			SshTransport sshTransport = (SshTransport) transport;
+			sshTransport.setSshSessionFactory(GitRepositoryBranch.this.getSshSessionFactory());
+		    }
+		});
+	    } else if (this.gitConf.isBasicAuthenticationEnabled()) {
 		cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(this.gitConf.username().orElse(null), this.gitConf.password().orElse(null)));
 	    }
 	    cloneCommand.call();
 
 	    this.lastRefresh = System.currentTimeMillis();
 	}
+    }
+
+    private SshSessionFactory getSshSessionFactory() {
+	return new JschConfigSessionFactory() {
+	    @Override
+	    protected void configure(Host host, Session session) {
+		// do nothing
+	    }
+
+	    @Override
+	    protected JSch createDefaultJSch(FS fs) throws JSchException {
+		JSch defaultJSch = super.createDefaultJSch(fs);
+		var home = String.valueOf(System.getenv("HOME"));
+		String knownHostsFileName = Paths.get(home, ".ssh", "known_hosts").toString();
+		LOG.debug("KnownHostsFile selected on " + knownHostsFileName);
+		if (knownHostsFileName != null && new File(knownHostsFileName).exists()) {
+		    defaultJSch.setKnownHosts(knownHostsFileName);
+		    LOG.debug("KnownHostsFile added on " + knownHostsFileName);
+		}
+		defaultJSch.addIdentity(GitRepositoryBranch.this.gitConf.privateKeyPath().orElse(""));
+		return defaultJSch;
+	    }
+	};
+
     }
 
     protected boolean shouldPull() {
@@ -66,6 +109,14 @@ public class GitRepositoryBranch {
 	    LOG.info("[REPO] Pulling repository " + this.gitConf.uri());
 	    try (var git = Git.open(this.branchFolder)) {
 		if (this.gitConf.isAuthenticationEnabled()) {
+		    git.pull().setTransportConfigCallback(new TransportConfigCallback() {
+			@Override
+			public void configure(Transport transport) {
+			    SshTransport sshTransport = (SshTransport) transport;
+			    sshTransport.setSshSessionFactory(GitRepositoryBranch.this.getSshSessionFactory());
+			}
+		    });
+		} else if (this.gitConf.isBasicAuthenticationEnabled()) {
 		    git.pull().setCredentialsProvider(new UsernamePasswordCredentialsProvider(this.gitConf.username().orElse(null), this.gitConf.password().orElse(null))).call();
 		} else {
 		    git.pull().call();
