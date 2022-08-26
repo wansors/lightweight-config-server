@@ -69,6 +69,12 @@ public interface GitConfiguration {
     public Optional<String> multirepositoryOverwriteLabelKey();
 
     /**
+     * Key used to identify application (app) for second repository
+     */
+    @WithName("multirepository-overwrite-application-key")
+    public Optional<String> multirepositoryOverwriteApplicationKey();
+
+    /**
      * Search paths used to obtain files
      */
     // @WithName("searchPaths")
