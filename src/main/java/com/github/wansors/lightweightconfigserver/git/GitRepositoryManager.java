@@ -90,7 +90,10 @@ public class GitRepositoryManager {
 		}
 		String applicationKey = repository.getMultirepositoryOverwriteApplicationKey();
 		if (applicationKey != null) {
-		    application = config.getOptionalValue(applicationKey, String.class).orElse(application);
+		    var value = config.getOptionalValue(applicationKey, String.class).orElse(null);
+		    if (value != null && !value.isEmpty()) {
+			application = value;
+		    }
 		}
 
 	    }
