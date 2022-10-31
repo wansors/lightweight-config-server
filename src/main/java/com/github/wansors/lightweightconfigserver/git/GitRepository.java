@@ -105,7 +105,7 @@ public class GitRepository {
 	try {
 
 	    if (this.gitRepositoryBranches.containsKey(branchName)) {
-		LOG.debug("Branch " + branchName + " is already cloned");
+		LOG.debugv("Branch {} is already cloned", branchName);
 		// Branch has already been downloaded
 		var gitRepositoryBranch = this.gitRepositoryBranches.get(branchName);
 		// Pull latest changes
@@ -113,7 +113,7 @@ public class GitRepository {
 		// Ya hemos accedido a esta rama con anterioridad
 		file = gitRepositoryBranch.getBranchFolder();
 	    } else {
-		LOG.debug("Branch " + branchName + " is not cloned");
+		LOG.debugv("Branch {} is not cloned", branchName);
 		boolean branchType;
 		if (this.containsBranch(branchName)) {
 		    // BRANCH
@@ -123,7 +123,7 @@ public class GitRepository {
 		    // TAG
 		    branchType = false;
 		} else {
-		    LOG.warn("Branch " + branchName + " not found");
+		    LOG.warnv("Branch {} not found", branchName);
 		    throw new ApiWsException("Branch '" + branchName + "' not found", ErrorTypeCodeEnum.REQUEST_GENERIC_NOT_FOUND);
 		}
 		// First access to the brach
@@ -153,27 +153,27 @@ public class GitRepository {
 
 	// A) application.(properties(1)/yml(2)),
 	// (General properties that apply to all applications and all profiles)
-	this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, priority + 1, false);
-	this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, YAML_EXTENSION, priority + 2, false);
+	this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, PROPERTIES_EXTENSION, priority + 10, false);
+	this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, null, YAML_EXTENSION, priority + 20, false);
 
 	// B) {application}.(properties(3)/yml(4))
 	// (Specific properties that apply to an application-specific and all
 	// profiles)
-	this.addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, priority + 3, true);
-	this.addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, priority + 4, true);
+	this.addConfigurationFileResource(dir, result, application, null, PROPERTIES_EXTENSION, priority + 30, true);
+	this.addConfigurationFileResource(dir, result, application, null, YAML_EXTENSION, priority + 40, true);
 
 	if (profile != null) {
 	    // C) application-{profile}.(properties(5).yml(6))
 	    // (General properties that apply to all applications and
 	    // profile-specific )
-	    this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, priority + 5, false);
-	    this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, priority + 6, false);
+	    this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, PROPERTIES_EXTENSION, priority + 50, false);
+	    this.addConfigurationFileResource(dir, result, DEFAULT_APPLICATION, profile, YAML_EXTENSION, priority + 60, false);
 
 	    // D) {application}-{profile}.(properties(7)/yml(8))
 	    // (Specific properties that apply to an application-specific and a
 	    // profile-specific )
-	    this.addConfigurationFileResource(dir, result, application, profile, PROPERTIES_EXTENSION, priority + 7, true);
-	    this.addConfigurationFileResource(dir, result, application, profile, YAML_EXTENSION, priority + 8, true);
+	    this.addConfigurationFileResource(dir, result, application, profile, PROPERTIES_EXTENSION, priority + 70, true);
+	    this.addConfigurationFileResource(dir, result, application, profile, YAML_EXTENSION, priority + 80, true);
 	}
 
 	// Debemos usar el gitConfiguration.destinationDirectory para listar los
@@ -189,36 +189,56 @@ public class GitRepository {
 	return result;
     }
 
+    /**
+     * Find any files that matches the keys. Priority is given by the search
+     * paths order
+     *
+     * @param dir
+     * @param list
+     * @param application
+     * @param profile
+     * @param extension
+     * @param priority
+     * @param searchPath
+     */
     private void addConfigurationFileResource(File dir, List<ConfigurationFileResource> list, String application, String profile, String extension, int priority, boolean searchPath) {
 	String fileName = this.generateFilename(application, profile, extension);
 	LOG.debug("CONF: " + dir + "\\" + fileName);
 	var file = new File(dir, fileName);
+
+	// File exists on root?
+	this.addFileToList(list, file, priority++);
+
+	if (searchPath && this.gitConf.searchPaths().isPresent()) {
+	    // Search for first match in each searchPath
+	    for (String path : this.gitConf.searchPaths().orElse(new ArrayList<>())) {
+
+		if (path.contains("{application}") && application != null) {
+		    path = path.replace("{application}", application);
+		    fileName = this.generateFilename(null, profile, extension);
+
+		} else if (path.contains("{profile}") && profile != null) {
+		    path = path.replace("{profile}", profile);
+		    fileName = this.generateFilename(application, null, extension);
+
+		} else if (path.contains("*")) {
+		    // TODO contains * in searchPath
+		    throw new UnsupportedOperationException();
+		}
+		file = new File(Paths.get(dir.getAbsolutePath(), path, fileName).toString());
+
+		// File exists on path?
+		this.addFileToList(list, file, priority++);
+
+	    }
+	}
+
+    }
+
+    private void addFileToList(List<ConfigurationFileResource> list, File file, int priority) {
 	try {
 	    if (file.exists()) {
-		// File exists on root
 		list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
-	    } else if (searchPath && this.gitConf.searchPaths().isPresent()) {
-		// Search for first match in each searchPath
-		for (String path : this.gitConf.searchPaths().orElse(new ArrayList<String>())) {
-
-		    if (path.contains("{application}") && application != null) {
-			path = path.replace("{application}", application);
-			fileName = this.generateFilename(null, profile, extension);
-
-		    } else if (path.contains("{profile}") && profile != null) {
-			path = path.replace("{profile}", profile);
-			fileName = this.generateFilename(application, null, extension);
-
-		    } else if (path.contains("*")) {
-			// TODO contains * in searchPath
-			throw new UnsupportedOperationException();
-		    }
-		    file = new File(Paths.get(dir.getAbsolutePath(), path, fileName).toString());
-		    if (file.exists()) {
-			// File exists on root
-			list.add(new ConfigurationFileResource(file.toURI().toURL(), priority));
-		    }
-		}
 	    }
 	} catch (MalformedURLException e) {
 	    LOG.warn(e);

@@ -22,12 +22,12 @@ lightweightconfigserver:
           force-pull: true                    
           search-paths:
             - '{profile}'
-        - uri: https://github.com/wansors/lightweight-config-server-samples2.git
-          refresh-rate: 15
-          force-pull: false
-          multirepository-allow-overwrite: true
-          multirepository-overwrite-label-key: external.repo.branch
-          pattern: 'multirepo*'
-          search-paths:
-            - common
-            - '{profile}'
+        #- uri: https://github.com/wansors/lightweight-config-server-samples2.git
+        #  refresh-rate: 15
+        #  force-pull: false
+        #  multirepository-allow-overwrite: true
+        #  multirepository-overwrite-label-key: external.repo.branch
+        #  pattern: 'multirepo*'
+        #  search-paths:
+        #    - common
+        #    - '{profile}'

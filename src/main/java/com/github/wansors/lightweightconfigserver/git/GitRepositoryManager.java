@@ -71,7 +71,7 @@ public class GitRepositoryManager {
 	    var repositoryThatOverwrites = this.getGitRepository(application, profile, repository.getId());
 	    if (repositoryThatOverwrites != null) {
 		try {
-		    files.addAll(repositoryThatOverwrites.getFiles(application, profile, branch, 10));
+		    files.addAll(repositoryThatOverwrites.getFiles(application, profile, branch, 100));
 		    LOG.info("[MULTI-REPO] Adding files for " + application + "/" + profile + " on " + repositoryThatOverwrites.getId() + " with branch " + branch);
 		} catch (ApiWsException e) {
 		    // If second multirepository call fails, we do not.
