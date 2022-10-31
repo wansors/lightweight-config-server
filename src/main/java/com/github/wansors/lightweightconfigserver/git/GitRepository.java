@@ -281,6 +281,11 @@ public class GitRepository {
 
     }
 
+    public String getMultirepositoryOverwriteApplicationKey() {
+	return this.gitConf.multirepositoryOverwriteApplicationKey().orElse(null);
+
+    }
+
     public String getId() {
 	return this.gitConf.uri();
     }

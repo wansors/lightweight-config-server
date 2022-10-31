@@ -57,7 +57,8 @@ public class GitRepositoryManager {
 
     }
 
-    public List<ConfigurationFileResource> getConfigurationFiles(String application, String profile, String label) {
+    public List<ConfigurationFileResource> getConfigurationFiles(String app, String profile, String label) {
+	String application = app;
 	// Find which repository should be used
 	var repository = this.getGitRepository(application, profile, null);
 	List<ConfigurationFileResource> files = new ArrayList<>();
@@ -87,6 +88,14 @@ public class GitRepositoryManager {
 			LOG.warn("[MULTI-REPO] key:" + key + " value not found, using request branch");
 		    }
 		}
+		String applicationKey = repository.getMultirepositoryOverwriteApplicationKey();
+		if (applicationKey != null) {
+		    var value = config.getOptionalValue(applicationKey, String.class).orElse(null);
+		    if (value != null && !value.isEmpty()) {
+			application = value;
+		    }
+		}
+
 	    }
 	}
 	LOG.info("[REPO] Adding files for " + application + "/" + profile + " on " + repository.getId() + " with branch " + branch);
