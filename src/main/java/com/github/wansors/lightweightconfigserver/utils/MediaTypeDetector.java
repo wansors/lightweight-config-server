@@ -2,7 +2,7 @@ package com.github.wansors.lightweightconfigserver.utils;
 
 import java.io.File;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 public class MediaTypeDetector {
 	private MediaTypeDetector() {

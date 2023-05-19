@@ -3,8 +3,8 @@ package com.github.wansors.lightweightconfigserver;
 import java.io.File;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import com.github.wansors.lightweightconfigserver.git.GitRepositoryManager;
 

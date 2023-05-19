@@ -18,7 +18,7 @@ import com.github.wansors.lightweightconfigserver.utils.MapConverter;
 public class MapConverterTest {
 
     @Test()
-    public void convertTest() {
+    void convertTest() {
 
 	final Map<String, Object> testMap = new HashMap<>();
 	testMap.put("test", "test");
@@ -61,7 +61,7 @@ public class MapConverterTest {
     }
 
     @Test
-    public void convertToPropertiesFormatStringTest() {
+    void convertToPropertiesFormatStringTest() {
 
 	final Map<String, String> testMap = new HashMap<>();
 	testMap.put("test", "test");
@@ -95,7 +95,7 @@ public class MapConverterTest {
     }
 
     @Test()
-    public void convertTestArray() {
+    void convertTestArray() {
 
 	final Map<String, Object> testMap = new HashMap<>();
 	testMap.put("subnodo[0].a", "a0");
@@ -137,7 +137,7 @@ public class MapConverterTest {
     }
 
     @Test()
-    public void convertSampleConfigPropertiesFile() throws IOException {
+    void convertSampleConfigPropertiesFile() throws IOException {
 	final Properties properties = new Properties();
 	final ClassLoader loader = Thread.currentThread()
 		.getContextClassLoader();
@@ -154,7 +154,7 @@ public class MapConverterTest {
     }
 
     @Test()
-    public void convertTestArray2() {
+    void convertTestArray2() {
 
 	final Map<String, Object> testMap = new HashMap<>();
 	testMap.put("subnodo[0].a", "a0");
