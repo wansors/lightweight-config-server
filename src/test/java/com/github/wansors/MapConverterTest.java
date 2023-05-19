@@ -152,4 +152,36 @@ public class MapConverterTest {
 
 	final Map<String, Object> testMap = MapConverter.expandMap(map);
     }
+
+    @Test()
+    void convertTestArray2() {
+
+	final Map<String, Object> testMap = new HashMap<>();
+	testMap.put("subnodo[0].a", "a0");
+	testMap.put("subnodo[0].b", "b0");
+	testMap.put("subnodo[1].a", "a1");
+	testMap.put("subnodo[2].b", "b2");
+	testMap.put("subnodo[3].a", "a1");
+	testMap.put("subnodo[4].b", "b2");
+	testMap.put("subnodo[5].a", "a1");
+	testMap.put("subnodo[6].b", "b2");
+	testMap.put("subnodo[7].a", "a1");
+	testMap.put("subnodo[8].b", "b2");
+	testMap.put("subnodo[9].a", "a1");
+	testMap.put("subnodo[10].b", "b10");
+	testMap.put("subnodo[11].a", "a11");
+	testMap.put("subnodo[12].b", "b12");
+
+	final Map<String, Object> resultMap = MapConverter.expandMap(testMap);
+
+	final List<Object> lista = (List<Object>) resultMap.get("subnodo");
+	assertEquals(13, lista.size());
+	Map<String, Object> subnodo = (Map<String, Object>) lista.get(10);
+	assertEquals("b10", subnodo.get("b"));
+	subnodo = (Map<String, Object>) lista.get(11);
+	assertEquals("a11", subnodo.get("a"));
+	subnodo = (Map<String, Object>) lista.get(12);
+	assertEquals("b12", subnodo.get("b"));
+
+    }
 }
