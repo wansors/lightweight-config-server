@@ -1,7 +1,6 @@
 package com.github.wansors.lightweightconfigserver.cloudconfig;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,77 +9,64 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
 public class SpringCloudConfigResponse {
-	private String name;
-	private List<String> profiles =new ArrayList<>();
-	private String label;
-	private String  version;
-	private String state;
-	
-	private List<PropertySource> propertySources=new LinkedList<>();
-	
-	public void addPropertySource(String name, Map<String, String> source) {
-		propertySources.add(new PropertySource(name, source));
-	}
+    private String name;
+    private List<String> profiles = new ArrayList<>();
+    private String label;
+    private String version;
+    private String state;
 
-	public String getName() {
-		return name;
-	}
+    private List<PropertySource> propertySources = new LinkedList<>();
 
+    public void addPropertySource(final String name, final Map<String, String> source) {
+	this.propertySources.add(new PropertySource(name, source));
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+	return this.name;
+    }
 
+    public void setName(final String name) {
+	this.name = name;
+    }
 
-	public List<String> getProfiles() {
-		return profiles;
-	}
+    public List<String> getProfiles() {
+	return this.profiles;
+    }
 
+    public void setProfiles(final List<String> profiles) {
+	this.profiles = profiles;
+    }
 
-	public void setProfiles(List<String> profiles) {
-		this.profiles = profiles;
-	}
+    public String getLabel() {
+	return this.label;
+    }
 
+    public void setLabel(final String label) {
+	this.label = label;
+    }
 
-	public String getLabel() {
-		return label;
-	}
+    public String getVersion() {
+	return this.version;
+    }
 
+    public void setVersion(final String version) {
+	this.version = version;
+    }
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+    public String getState() {
+	return this.state;
+    }
 
+    public void setState(final String state) {
+	this.state = state;
+    }
 
-	public String getVersion() {
-		return version;
-	}
+    public List<PropertySource> getPropertySources() {
+	return this.propertySources;
+    }
 
+    public void setPropertySources(final List<PropertySource> propertySources) {
+	this.propertySources = propertySources;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-
-	public String getState() {
-		return state;
-	}
-
-
-	public void setState(String state) {
-		this.state = state;
-	}
-
-
-	public List<PropertySource> getPropertySources() {
-		return propertySources;
-	}
-
-
-	public void setPropertySources(List<PropertySource> propertySources) {
-		this.propertySources = propertySources;
-	}
-	
-	
-    
 }
