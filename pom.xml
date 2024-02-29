@@ -31,7 +31,7 @@
     <dependency>
       <groupId>io.quarkiverse.jgit</groupId>
       <artifactId>quarkus-jgit</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.7</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
